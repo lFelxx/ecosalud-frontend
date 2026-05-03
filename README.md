@@ -65,4 +65,4 @@ El frontend se comunica con una API REST desarrollada en Spring Boot, encargada 
 
 - Gestión de usuarios
 - Disponibilidad de citas
-- Persistencia de datos
+- Persistencia de datos.
