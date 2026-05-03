@@ -16,10 +16,10 @@ El sistema busca digitalizar el proceso de asignación de citas, reduciendo el d
 
 Muchos consultorios pequeños no cuentan con herramientas digitales para gestionar sus citas, lo que genera:
 
-- Desorganización en horarios  
-- Pérdida de información  
-- Dificultad para los pacientes al agendar  
-- Procesos manuales ineficientes  
+- Desorganización en horarios
+- Pérdida de información
+- Dificultad para los pacientes al agendar
+- Procesos manuales ineficientes
 
 ---
 
@@ -31,18 +31,18 @@ Desarrollar una aplicación web intuitiva que permita a los pacientes reservar c
 
 ## 👥 Usuarios objetivo
 
-- 🧑‍⚕️ Personal médico  
-- 🧑 Pacientes  
+- 🧑‍⚕️ Personal médico
+- 🧑 Pacientes
 
 ---
 
 ## 🚀 Funcionalidades principales
 
-- 📅 Visualización de disponibilidad de citas  
-- 📝 Reserva de citas médicas  
-- 👤 Registro e inicio de sesión de usuarios  
-- 🔎 Selección de fechas y horarios disponibles  
-- 📋 Gestión de citas (visualización y estado)  
+- 📅 Visualización de disponibilidad de citas
+- 📝 Reserva de citas médicas
+- 👤 Registro e inicio de sesión de usuarios
+- 🔎 Selección de fechas y horarios disponibles
+- 📋 Gestión de citas (visualización y estado)
 
 ---
 
@@ -54,15 +54,15 @@ La aplicación sigue una arquitectura basada en componentes reutilizables, permi
 
 ## 🛠️ Tecnologías utilizadas
 
-- React  
-- TypeScript  
-- HTML5 & CSS3  
-- Material UI  
+- React
+- TypeScript
+- HTML5 & CSS3
+- Material UI
 
 ## 🔗 Integración con Backend
 
 El frontend se comunica con una API REST desarrollada en Spring Boot, encargada de:
 
-- Gestión de usuarios  
-- Disponibilidad de citas  
-- Persistencia de datos 
+- Gestión de usuarios
+- Disponibilidad de citas
+- Persistencia de datos
