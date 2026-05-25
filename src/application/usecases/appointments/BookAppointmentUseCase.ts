@@ -2,7 +2,11 @@ import type { IAppointmentRepository } from '../../../domain/repositories/IAppoi
 import type { Appointment } from '../../../domain/entities/Appointment';
 
 export class BookAppointmentUseCase {
-  constructor(private readonly appointmentRepository: IAppointmentRepository) {}
+  private readonly appointmentRepository: IAppointmentRepository;
+
+  constructor(appointmentRepository: IAppointmentRepository) {
+    this.appointmentRepository = appointmentRepository;
+  }
 
   async execute(data: Omit<Appointment, 'id'>): Promise<Appointment> {
     if (!data.date || !data.time || !data.serviceId) {

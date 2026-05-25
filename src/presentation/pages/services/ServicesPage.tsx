@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { ReactNode, SyntheticEvent } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   Box, Typography, Container, Card, CardContent, CardMedia,
@@ -77,7 +78,7 @@ const SERVICES = [
 ];
 
 // Placeholder cuando la imagen no está disponible
-function ImagePlaceholder({ icon }: { icon: React.ReactNode }) {
+function ImagePlaceholder({ icon }: { icon: ReactNode }) {
   return (
     <Box
       sx={{
@@ -95,7 +96,7 @@ function ImagePlaceholder({ icon }: { icon: React.ReactNode }) {
   );
 }
 
-function ServiceImage({ src, icon }: { src: string; icon: React.ReactNode }) {
+function ServiceImage({ src, icon }: { src: string; icon: ReactNode }) {
   const [errored, setErrored] = useState(false);
   if (errored) return <ImagePlaceholder icon={icon} />;
   return (
@@ -122,12 +123,11 @@ export default function ServicesPage() {
       <Container maxWidth="lg" sx={{ flex: 1, py: { xs: 4, md: 6 } }}>
 
         {/* ── Hero ── */}
-        <Grid container spacing={4} alignItems="center" sx={{ mb: 5 }}>
-          <Grid item xs={12} md={5}>
+        <Grid container spacing={4} sx={{ mb: 5, alignItems: 'center' }}>
+          <Grid size={{ xs: 12, md: 5 }}>
             <Typography
               variant="h3"
-              fontWeight={800}
-              sx={{ color: '#1A2E2A', lineHeight: 1.15, mb: 2, fontSize: { xs: '2rem', md: '2.6rem' } }}
+              sx={{ color: '#1A2E2A', lineHeight: 1.15, mb: 2, fontSize: { xs: '2rem', md: '2.6rem' }, fontWeight: 800 }}
             >
               Nuestro Catálogo de Terapias Integrales
             </Typography>
@@ -135,7 +135,7 @@ export default function ServicesPage() {
               Descubre soluciones naturales diseñadas para restaurar tu equilibrio y bienestar vital.
             </Typography>
           </Grid>
-          <Grid item xs={12} md={7}>
+          <Grid size={{ xs: 12, md: 7 }}>
             <Box
               sx={{
                 borderRadius: 4,
@@ -153,14 +153,14 @@ export default function ServicesPage() {
                 component="img"
                 src="/assets/services/clinic-hero.jpg"
                 alt="Consultorio Ecosalud"
-                onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                onError={(e: SyntheticEvent<HTMLImageElement>) => {
                   e.currentTarget.style.display = 'none';
                 }}
                 sx={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }}
               />
-              <Stack alignItems="center" spacing={1} sx={{ zIndex: 1, opacity: 0.5 }}>
+              <Stack sx={{ alignItems: 'center', zIndex: 1, opacity: 0.5 }} spacing={1}>
                 <SpaOutlinedIcon sx={{ fontSize: 64, color: '#2B8A78' }} />
-                <Typography variant="body2" color="#2B8A78" fontWeight={600}>
+                <Typography variant="body2" color="#2B8A78" sx={{ fontWeight: 600 }}>
                   Imagen del consultorio
                 </Typography>
               </Stack>
@@ -170,7 +170,7 @@ export default function ServicesPage() {
 
         {/* ── Filtros ── */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', mb: 4 }}>
-          <Typography variant="body2" fontWeight={600} color="text.secondary">
+          <Typography variant="body2" sx={{ fontWeight: 600 }} color="text.secondary">
             Filtrar por:
           </Typography>
           {FILTERS.map((f) => (
@@ -199,7 +199,7 @@ export default function ServicesPage() {
         {/* ── Grid de servicios ── */}
         <Grid container spacing={2.5}>
           {filtered.map((service) => (
-            <Grid item xs={12} sm={6} md={3} key={service.name}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }} key={service.name}>
               <Card
                 sx={{
                   borderRadius: 3,
@@ -220,7 +220,7 @@ export default function ServicesPage() {
                 <ServiceImage src={service.image} icon={service.icon} />
 
                 <CardContent sx={{ p: 2.5, flex: 1, display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant="h6" fontWeight={700} sx={{ mb: 0.8, fontSize: '1rem' }}>
+                  <Typography variant="h6" sx={{ mb: 0.8, fontSize: '1rem', fontWeight: 700 }}>
                     {service.name}
                   </Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6, flex: 1, mb: 2 }}>

@@ -2,7 +2,11 @@ import type { IAppointmentRepository } from '../../../domain/repositories/IAppoi
 import type { Appointment } from '../../../domain/entities/Appointment';
 
 export class GetAppointmentsUseCase {
-  constructor(private readonly appointmentRepository: IAppointmentRepository) {}
+  private readonly appointmentRepository: IAppointmentRepository;
+
+  constructor(appointmentRepository: IAppointmentRepository) {
+    this.appointmentRepository = appointmentRepository;
+  }
 
   async execute(patientId: number): Promise<Appointment[]> {
     return this.appointmentRepository.getByPatient(patientId);

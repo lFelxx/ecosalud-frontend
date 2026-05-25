@@ -87,8 +87,8 @@ export default function HomePage() {
       <Container maxWidth="lg" sx={{ flex: 1, py: { xs: 3, md: 5 }, px: { xs: 2, sm: 3, md: 4 } }}>
 
         {/* ── Hero ── */}
-        <Grid container spacing={{ xs: 3, md: 4 }} alignItems="center" sx={{ mb: { xs: 4, md: 5 } }}>
-          <Grid item xs={12} md={7}>
+        <Grid container spacing={{ xs: 3, md: 4 }} sx={{ mb: { xs: 4, md: 5 }, alignItems: 'center' }}>
+          <Grid size={{ xs: 12, md: 7 }}>
             {/* Chip "Paciente Activo" con punto centrado */}
             <Box
               sx={{
@@ -112,15 +112,14 @@ export default function HomePage() {
                   flexShrink: 0,
                 }}
               />
-              <Typography variant="caption" fontWeight={700} sx={{ fontSize: '0.75rem', lineHeight: 1 }}>
+              <Typography variant="caption" sx={{ fontSize: '0.75rem', lineHeight: 1, fontWeight: 700 }}>
                 Paciente Activo
               </Typography>
             </Box>
 
             <Typography
               variant="h3"
-              fontWeight={800}
-              sx={{ color: '#1A2E2A', lineHeight: 1.15, mb: 2, fontSize: { xs: '1.8rem', sm: '2.2rem', md: '2.5rem' } }}
+              sx={{ color: '#1A2E2A', lineHeight: 1.15, mb: 2, fontSize: { xs: '1.8rem', sm: '2.2rem', md: '2.5rem' }, fontWeight: 800 }}
             >
               Tu camino hacia el bienestar natural
             </Typography>
@@ -128,7 +127,7 @@ export default function HomePage() {
               Bienvenido de nuevo. Aquí puedes gestionar tu progreso clínico, agendar nuevas sesiones y revisar tus fórmulas botánicas bajo la guía de la especialista Angelica Camacho.
             </Typography>
           </Grid>
-          <Grid item xs={12} md={5} sx={{ display: 'flex', justifyContent: 'center' }}>
+          <Grid size={{ xs: 12, md: 5 }} sx={{ display: 'flex', justifyContent: 'center' }}>
             <Card
               sx={{
                 borderRadius: 4,
@@ -154,7 +153,7 @@ export default function HomePage() {
           <CardContent sx={{ p: { xs: 2, md: 3 } }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2.5 }}>
               <CalendarTodayOutlinedIcon sx={{ color: '#3DAA96', fontSize: 20 }} />
-              <Typography variant="h6" fontWeight={700}>Próximas Sesiones</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>Próximas Sesiones</Typography>
             </Box>
 
             <Box
@@ -172,10 +171,10 @@ export default function HomePage() {
               }}
             >
               <Box>
-                <Typography variant="body2" fontWeight={600} sx={{ color: '#3DAA96', mb: 0.3 }}>
+                <Typography variant="body2" sx={{ color: '#3DAA96', mb: 0.3, fontWeight: 600 }}>
                   Mañana, 09:30 AM
                 </Typography>
-                <Typography variant="body1" fontWeight={700}>Ozonoterapia</Typography>
+                <Typography variant="body1" sx={{ fontWeight: 700 }}>Ozonoterapia</Typography>
                 <Typography variant="caption" color="text.secondary">
                   Sesión 4 de 10 — Fase de Saturación
                 </Typography>
@@ -193,7 +192,7 @@ export default function HomePage() {
 
             <Divider sx={{ my: 2 }} />
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-              <Typography variant="caption" color="text.secondary" fontStyle="italic">
+              <Typography variant="caption" color="text.secondary" sx={{ fontStyle: 'italic' }}>
                 "La persistencia en el tratamiento es la base de la regeneración."
               </Typography>
               <SpaOutlinedIcon sx={{ color: '#3DAA96', fontSize: 18, flexShrink: 0 }} />
@@ -214,7 +213,7 @@ export default function HomePage() {
             }}
           >
             <Box>
-              <Typography variant="h4" fontWeight={700} sx={{ color: '#1A2E2A', fontSize: { xs: '1.4rem', md: '2rem' } }}>
+              <Typography variant="h4" sx={{ color: '#1A2E2A', fontSize: { xs: '1.4rem', md: '2rem' }, fontWeight: 700 }}>
                 Nuestros Servicios Destacados
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, maxWidth: 400 }}>
@@ -284,7 +283,7 @@ export default function HomePage() {
 
                 {/* Contenido */}
                 <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography fontWeight={700} sx={{ mb: 0.5, fontSize: '1rem' }}>
+                  <Typography sx={{ mb: 0.5, fontSize: '1rem', fontWeight: 700 }}>
                     {service.name}
                   </Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6, mb: 1.2 }}>
@@ -301,17 +300,12 @@ export default function HomePage() {
           </Box>
         </Box>
 
-        {/* ── Dra. Angelica Camacho ──
-            Para editar: cambia el texto en las líneas Typography de esta sección.
-            - Especialidad: línea con "Especialista en Terapias Alternativas..."
-            - Descripción: el párrafo debajo
-            - Estadísticas: los valores 2.5k+ y 15+
-        */}
+        {/* ── Dra. Angelica Camacho ── */}
         <Card sx={{ borderRadius: 4, bgcolor: '#E8F5F1', boxShadow: 'none', mb: 2, overflow: 'visible' }}>
           <CardContent sx={{ p: { xs: 3, md: 5 } }}>
-            <Grid container spacing={{ xs: 3, md: 4 }} alignItems="center">
+            <Grid container spacing={{ xs: 3, md: 4 }} sx={{ alignItems: 'center' }}>
               {/* Foto contenida en el círculo */}
-              <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Grid size={{ xs: 12, md: 4 }} sx={{ display: 'flex', justifyContent: 'center' }}>
                 <Box sx={{ position: 'relative', width: 200, height: 200, flexShrink: 0 }}>
                   {/* Círculo decorativo de fondo desplazado */}
                   <Box
@@ -342,29 +336,27 @@ export default function HomePage() {
                 </Box>
               </Grid>
 
-              <Grid item xs={12} md={8}>
-                <Typography variant="h4" fontWeight={800} sx={{ color: '#1A2E2A', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+              <Grid size={{ xs: 12, md: 8 }}>
+                <Typography variant="h4" sx={{ color: '#1A2E2A', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' }, fontWeight: 800 }}>
                   Dra. Angelica Camacho
                 </Typography>
 
-                {/* ✏️ EDITA AQUÍ la especialidad */}
                 <Typography variant="body2" sx={{ color: '#3DAA96', fontWeight: 600, mb: 2 }}>
                   Especialista en Terapias Alternativas y Farmacología Vegetal
                 </Typography>
 
-                {/* ✏️ EDITA AQUÍ el texto descriptivo */}
                 <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7, mb: 3 }}>
                   Con más de 15 años de experiencia integrando la ciencia moderna con terapias naturales, la Dra. Camacho guía cada tratamiento en Ecosalud Market. Su enfoque se centra en tratar la causa raíz, no solo los síntomas.
                 </Typography>
 
                 <Stack direction="row" spacing={4}>
                   <Box>
-                    <Typography variant="h5" fontWeight={800} sx={{ color: '#1A2E2A' }}>2.5k+</Typography>
-                    <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ letterSpacing: 1 }}>PACIENTES</Typography>
+                    <Typography variant="h5" sx={{ color: '#1A2E2A', fontWeight: 800 }}>2.5k+</Typography>
+                    <Typography variant="caption" color="text.secondary" sx={{ letterSpacing: 1, fontWeight: 600 }}>PACIENTES</Typography>
                   </Box>
                   <Box>
-                    <Typography variant="h5" fontWeight={800} sx={{ color: '#1A2E2A' }}>15+</Typography>
-                    <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ letterSpacing: 1 }}>AÑOS EXP.</Typography>
+                    <Typography variant="h5" sx={{ color: '#1A2E2A', fontWeight: 800 }}>15+</Typography>
+                    <Typography variant="caption" color="text.secondary" sx={{ letterSpacing: 1, fontWeight: 600 }}>AÑOS EXP.</Typography>
                   </Box>
                 </Stack>
               </Grid>

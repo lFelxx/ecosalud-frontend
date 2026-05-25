@@ -49,15 +49,15 @@ export default function LandingPage() {
       {/* ── Hero ── */}
       <Box sx={{ bgcolor: '#F4FAF8', py: { xs: 6, md: 10 } }}>
         <Container maxWidth="lg">
-          <Grid container spacing={4} alignItems="center">
-            <Grid item xs={12} md={6}>
+          <Grid container spacing={4} sx={{ alignItems: 'center' }}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.8, bgcolor: '#E8F5F0', border: '1px solid #B2DDD4', borderRadius: '999px', px: 1.8, py: 0.6, mb: 3 }}>
                 <SpaOutlinedIcon sx={{ color: '#3DAA96', fontSize: 16 }} />
-                <Typography variant="caption" fontWeight={700} sx={{ color: '#3DAA96', fontSize: '0.75rem' }}>
+                <Typography variant="caption" sx={{ color: '#3DAA96', fontSize: '0.75rem', fontWeight: 700 }}>
                   Terapias Alternativas Certificadas
                 </Typography>
               </Box>
-              <Typography variant="h2" fontWeight={800} sx={{ color: '#1A2E2A', lineHeight: 1.1, mb: 2.5, fontSize: { xs: '2rem', md: '3rem' } }}>
+              <Typography variant="h2" sx={{ color: '#1A2E2A', lineHeight: 1.1, mb: 2.5, fontSize: { xs: '2rem', md: '3rem' }, fontWeight: 800 }}>
                 Tu camino hacia el bienestar integral
               </Typography>
               <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8, mb: 4, maxWidth: 480 }}>
@@ -85,7 +85,7 @@ export default function LandingPage() {
                 </Button>
               </Stack>
             </Grid>
-            <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Grid size={{ xs: 12, md: 6 }} sx={{ display: 'flex', justifyContent: 'center' }}>
               <Box sx={{ position: 'relative', width: { xs: 260, md: 340 }, height: { xs: 260, md: 340 } }}>
                 <Box sx={{ position: 'absolute', inset: 0, borderRadius: '50%', bgcolor: '#C8EDE5', opacity: 0.6 }} />
                 <Box sx={{ position: 'absolute', top: 16, left: 16, right: 16, bottom: 16, borderRadius: '50%', border: '3px dashed #3DAA96', opacity: 0.35 }} />
@@ -105,11 +105,11 @@ export default function LandingPage() {
         <Container maxWidth="lg">
           <Grid container spacing={3}>
             {BENEFITS.map((b) => (
-              <Grid item xs={12} md={4} key={b.title}>
+              <Grid size={{ xs: 12, md: 4 }} key={b.title}>
                 <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
                   <Box sx={{ bgcolor: '#E8F5F0', borderRadius: 2, p: 1.2, flexShrink: 0 }}>{b.icon}</Box>
                   <Box>
-                    <Typography fontWeight={700} sx={{ mb: 0.5 }}>{b.title}</Typography>
+                    <Typography sx={{ mb: 0.5, fontWeight: 700 }}>{b.title}</Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>{b.desc}</Typography>
                   </Box>
                 </Box>
@@ -124,7 +124,7 @@ export default function LandingPage() {
         <Container maxWidth="lg">
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 2, mb: 4 }}>
             <Box>
-              <Typography variant="h4" fontWeight={700} sx={{ color: '#1A2E2A', fontSize: { xs: '1.4rem', md: '2rem' } }}>
+              <Typography variant="h4" sx={{ color: '#1A2E2A', fontSize: { xs: '1.4rem', md: '2rem' }, fontWeight: 700 }}>
                 Nuestros Servicios
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
@@ -158,7 +158,7 @@ export default function LandingPage() {
                   {service.icon}
                 </Box>
                 <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography fontWeight={700} sx={{ mb: 0.4 }}>{service.name}</Typography>
+                  <Typography sx={{ mb: 0.4, fontWeight: 700 }}>{service.name}</Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6, mb: 1 }}>{service.description}</Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8 }}>
                     {service.tags.map((tag) => <ServiceTag key={tag} label={tag} />)}
@@ -173,7 +173,7 @@ export default function LandingPage() {
       {/* ── CTA final ── */}
       <Box sx={{ bgcolor: '#3DAA96', py: { xs: 6, md: 8 } }}>
         <Container maxWidth="sm" sx={{ textAlign: 'center' }}>
-          <Typography variant="h4" fontWeight={800} sx={{ color: '#fff', mb: 1.5 }}>
+          <Typography variant="h4" sx={{ color: '#fff', mb: 1.5, fontWeight: 800 }}>
             Comienza tu viaje de sanación hoy
           </Typography>
           <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.85)', mb: 4 }}>
@@ -215,15 +215,15 @@ export default function LandingPage() {
         <Container maxWidth="lg">
           <Card sx={{ borderRadius: 4, bgcolor: '#E8F5F1', boxShadow: 'none' }}>
             <CardContent sx={{ p: { xs: 3, md: 5 } }}>
-              <Grid container spacing={4} alignItems="center">
-                <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Grid container spacing={4} sx={{ alignItems: 'center' }}>
+                <Grid size={{ xs: 12, md: 4 }} sx={{ display: 'flex', justifyContent: 'center' }}>
                   <Box sx={{ position: 'relative', width: 200, height: 200 }}>
                     <Box sx={{ position: 'absolute', bottom: -8, left: -8, width: 200, height: 200, borderRadius: '50%', border: '3px solid #3DAA96', opacity: 0.35 }} />
                     <Avatar src={doctorImage} alt="Dra. Angélica Camacho" sx={{ width: 200, height: 200, border: '4px solid #fff', boxShadow: '0 4px 20px rgba(0,0,0,0.14)', position: 'relative', zIndex: 1 }} />
                   </Box>
                 </Grid>
-                <Grid item xs={12} md={8}>
-                  <Typography variant="h4" fontWeight={800} sx={{ color: '#1A2E2A', mb: 0.5 }}>
+                <Grid size={{ xs: 12, md: 8 }}>
+                  <Typography variant="h4" sx={{ color: '#1A2E2A', mb: 0.5, fontWeight: 800 }}>
                     Dra. Angelica Camacho
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#3DAA96', fontWeight: 600, mb: 2 }}>
@@ -234,12 +234,12 @@ export default function LandingPage() {
                   </Typography>
                   <Stack direction="row" spacing={4}>
                     <Box>
-                      <Typography variant="h5" fontWeight={800} sx={{ color: '#1A2E2A' }}>2.5k+</Typography>
-                      <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ letterSpacing: 1 }}>PACIENTES</Typography>
+                      <Typography variant="h5" sx={{ color: '#1A2E2A', fontWeight: 800 }}>2.5k+</Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ letterSpacing: 1, fontWeight: 600 }}>PACIENTES</Typography>
                     </Box>
                     <Box>
-                      <Typography variant="h5" fontWeight={800} sx={{ color: '#1A2E2A' }}>15+</Typography>
-                      <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ letterSpacing: 1 }}>AÑOS EXP.</Typography>
+                      <Typography variant="h5" sx={{ color: '#1A2E2A', fontWeight: 800 }}>15+</Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ letterSpacing: 1, fontWeight: 600 }}>AÑOS EXP.</Typography>
                     </Box>
                   </Stack>
                 </Grid>

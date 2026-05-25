@@ -71,8 +71,7 @@ export default function RegisterPage() {
             <Box>
               <Typography
                 variant="h3"
-                fontWeight={800}
-                sx={{ color: '#FFFFFF', lineHeight: 1.2, mb: 2.5 }}
+                sx={{ color: '#FFFFFF', lineHeight: 1.2, mb: 2.5, fontWeight: 800 }}
               >
                 Tu camino hacia el bienestar integral.
               </Typography>
@@ -97,7 +96,7 @@ export default function RegisterPage() {
                   sx={{ width: 44, height: 44, border: '2px solid rgba(255,255,255,0.5)' }}
                 />
                 <Box>
-                  <Typography variant="body2" fontWeight={700} sx={{ color: '#FFFFFF' }}>
+                  <Typography variant="body2" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
                     Angelica Camacho
                   </Typography>
                   <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.75)' }}>
@@ -146,7 +145,7 @@ export default function RegisterPage() {
               Volver al inicio
             </Box>
 
-            <Typography variant="h4" fontWeight={700} sx={{ color: '#3DAA96', mb: 0.5 }}>
+            <Typography variant="h4" sx={{ color: '#3DAA96', mb: 0.5, fontWeight: 700 }}>
               Crear cuenta
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3.5 }}>
@@ -162,8 +161,8 @@ export default function RegisterPage() {
             <Box component="form" onSubmit={onSubmit} noValidate>
               {/* Nombre y Apellido */}
               <Grid container spacing={2} sx={{ mb: 2 }}>
-                <Grid item xs={6}>
-                  <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
+                <Grid size={6}>
+                  <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 600 }}>
                     Nombre
                   </Typography>
                   <TextField
@@ -175,8 +174,8 @@ export default function RegisterPage() {
                     size="small"
                   />
                 </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
+                <Grid size={6}>
+                  <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 600 }}>
                     Apellido
                   </Typography>
                   <TextField
@@ -191,7 +190,7 @@ export default function RegisterPage() {
               </Grid>
 
               {/* Correo */}
-              <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
+              <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 600 }}>
                 Correo Electrónico
               </Typography>
               <TextField
@@ -206,12 +205,12 @@ export default function RegisterPage() {
               />
 
               {/* Terapias */}
-              <Typography variant="body2" fontWeight={600} sx={{ mb: 1.5 }}>
+              <Typography variant="body2" sx={{ mb: 1.5, fontWeight: 600 }}>
                 ¿Has probado alguna de estas terapias antes?
               </Typography>
               <Grid container spacing={1.5} sx={{ mb: 2.5 }}>
                 {THERAPIES.map((t) => (
-                  <Grid item xs={6} key={t}>
+                  <Grid size={6} key={t}>
                     <Box
                       onClick={() => setTherapy(t === therapy ? '' : t)}
                       sx={{
@@ -245,7 +244,7 @@ export default function RegisterPage() {
               </Grid>
 
               {/* Objetivo de salud */}
-              <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
+              <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 600 }}>
                 ¿Qué buscas mejorar en tu salud?
               </Typography>
               <TextField

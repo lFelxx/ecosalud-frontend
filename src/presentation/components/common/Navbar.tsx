@@ -40,7 +40,7 @@ export default function Navbar() {
           sx={{ display: 'flex', alignItems: 'center', gap: 0.8, textDecoration: 'none', zIndex: 1 }}
         >
           <SpaIcon sx={{ color: '#3DAA96', fontSize: 22 }} />
-          <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#3DAA96', whiteSpace: 'nowrap' }}>
+          <Typography variant="subtitle1" sx={{ color: '#3DAA96', whiteSpace: 'nowrap', fontWeight: 700 }}>
             Ecosalud Market
           </Typography>
         </Box>

@@ -38,10 +38,6 @@ const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: { borderRadius: 8, padding: '12px 24px', fontSize: '1rem' },
-        containedPrimary: {
-          background: '#3DAA96',
-          '&:hover': { background: '#2B8A78' },
-        },
       },
     },
     MuiTextField: {

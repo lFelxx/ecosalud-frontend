@@ -1,7 +1,11 @@
 import type { IAuthRepository, LoginCredentials, AuthResponse } from '../../../domain/repositories/IAuthRepository';
 
 export class LoginUseCase {
-  constructor(private readonly authRepository: IAuthRepository) {}
+  private readonly authRepository: IAuthRepository;
+
+  constructor(authRepository: IAuthRepository) {
+    this.authRepository = authRepository;
+  }
 
   async execute(credentials: LoginCredentials): Promise<AuthResponse> {
     if (!credentials.email || !credentials.password) {

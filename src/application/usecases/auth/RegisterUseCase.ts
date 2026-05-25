@@ -1,7 +1,11 @@
 import type { IAuthRepository, RegisterData, AuthResponse } from '../../../domain/repositories/IAuthRepository';
 
 export class RegisterUseCase {
-  constructor(private readonly authRepository: IAuthRepository) {}
+  private readonly authRepository: IAuthRepository;
+
+  constructor(authRepository: IAuthRepository) {
+    this.authRepository = authRepository;
+  }
 
   async execute(data: RegisterData): Promise<AuthResponse> {
     if (!data.name || !data.email || !data.password) {

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthContext } from '../context/AuthContext';
 
@@ -10,7 +11,7 @@ import AppointmentsPage from '../pages/appointments/AppointmentsPage';
 import BookAppointmentPage from '../pages/appointments/BookAppointmentPage';
 import ServicesPage from '../pages/services/ServicesPage';
 
-function PrivateRoute({ children }: { children: React.ReactNode }) {
+function PrivateRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuthContext();
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 }

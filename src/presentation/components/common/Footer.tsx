@@ -20,7 +20,7 @@ export default function Footer() {
       }}
     >
       <Box>
-        <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#3DAA96' }}>
+        <Typography variant="subtitle1" sx={{ color: '#3DAA96', fontWeight: 700 }}>
           Ecosalud Market
         </Typography>
         <Typography variant="caption" color="text.secondary">
@@ -36,9 +36,9 @@ export default function Footer() {
         ))}
       </Stack>
 
-      <Stack direction="row" alignItems="center" spacing={1}>
+      <Stack direction="row" sx={{ alignItems: 'center' }} spacing={1}>
         <VerifiedUserOutlinedIcon sx={{ color: '#3DAA96', fontSize: 20 }} />
-        <Typography variant="body2" color="text.secondary" fontWeight={500}>
+        <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
           Salud Certificada
         </Typography>
         <IconButton size="small" sx={{ color: '#7A9E98' }}><ShareOutlinedIcon fontSize="small" /></IconButton>

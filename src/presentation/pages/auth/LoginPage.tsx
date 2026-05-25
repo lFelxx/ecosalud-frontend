@@ -72,10 +72,10 @@ export default function LoginPage() {
           }}
         />
         <Box sx={{ position: 'relative', zIndex: 2 }}>
-          <Typography variant="subtitle1" fontWeight={600} sx={{ color: '#3DAA96', mb: 1, letterSpacing: 0.5 }}>
+          <Typography variant="subtitle1" sx={{ color: '#3DAA96', mb: 1, letterSpacing: 0.5, fontWeight: 600 }}>
             Ecosalud Market
           </Typography>
-          <Typography variant="h3" fontWeight={800} sx={{ color: '#1A2E2A', lineHeight: 1.2, mb: 2 }}>
+          <Typography variant="h3" sx={{ color: '#1A2E2A', lineHeight: 1.2, mb: 2, fontWeight: 800 }}>
             Tu camino hacia el<br />bienestar integral.
           </Typography>
           <Typography variant="body1" sx={{ color: '#2D4A44', maxWidth: 380 }}>
@@ -120,7 +120,7 @@ export default function LoginPage() {
           </Box>
 
           <Box sx={{ bgcolor: 'white', borderRadius: 4, p: { xs: 3, md: 5 }, boxShadow: '0 4px 24px rgba(0,0,0,0.07)' }}>
-            <Typography variant="h4" fontWeight={700} align="center" gutterBottom>
+            <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 700 }}>
               Bienvenido de nuevo
             </Typography>
             <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 4 }}>
@@ -130,7 +130,7 @@ export default function LoginPage() {
             {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
 
             <Box component="form" onSubmit={onSubmit} noValidate>
-              <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
+              <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 600 }}>
                 Correo Electrónico
               </Typography>
               <TextField
@@ -142,16 +142,18 @@ export default function LoginPage() {
                 required
                 size="medium"
                 sx={{ mb: 2.5 }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <EmailOutlinedIcon sx={{ color: '#9DBFBA', fontSize: 20 }} />
-                    </InputAdornment>
-                  ),
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <EmailOutlinedIcon sx={{ color: '#9DBFBA', fontSize: 20 }} />
+                      </InputAdornment>
+                    ),
+                  },
                 }}
               />
 
-              <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
+              <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 600 }}>
                 Contraseña
               </Typography>
               <TextField
@@ -163,27 +165,29 @@ export default function LoginPage() {
                 required
                 size="medium"
                 sx={{ mb: 1 }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <LockOutlinedIcon sx={{ color: '#9DBFBA', fontSize: 20 }} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowPassword(!showPassword)}
-                        edge="end"
-                        size="small"
-                        sx={{ color: '#9DBFBA', '&:hover': { color: '#3DAA96' } }}
-                      >
-                        {showPassword
-                          ? <VisibilityOffOutlinedIcon sx={{ fontSize: 20 }} />
-                          : <VisibilityOutlinedIcon sx={{ fontSize: 20 }} />
-                        }
-                      </IconButton>
-                    </InputAdornment>
-                  ),
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LockOutlinedIcon sx={{ color: '#9DBFBA', fontSize: 20 }} />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                          size="small"
+                          sx={{ color: '#9DBFBA', '&:hover': { color: '#3DAA96' } }}
+                        >
+                          {showPassword
+                            ? <VisibilityOffOutlinedIcon sx={{ fontSize: 20 }} />
+                            : <VisibilityOutlinedIcon sx={{ fontSize: 20 }} />
+                          }
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
                 }}
               />
 
