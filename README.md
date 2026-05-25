@@ -1,68 +1,73 @@
-# 🌿 EcoSalud - Frontend
+# React + TypeScript + Vite
 
-Aplicación web enfocada en la gestión y reserva de citas médicas en consultorios y centros de atención pequeños, facilitando la organización de agendas y mejorando la experiencia tanto para pacientes como para el personal médico.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
----
+Currently, two official plugins are available:
 
-## 📌 Descripción
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-EcoSalud Citas es una interfaz web que permite a los usuarios visualizar disponibilidad de horarios y agendar citas médicas de manera rápida y sencilla.
+## React Compiler
 
-El sistema busca digitalizar el proceso de asignación de citas, reduciendo el desorden operativo y mejorando la eficiencia en la atención.
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
----
+## Expanding the ESLint configuration
 
-## ❗ Problemática
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-Muchos consultorios pequeños no cuentan con herramientas digitales para gestionar sus citas, lo que genera:
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-- Desorganización en horarios
-- Pérdida de información
-- Dificultad para los pacientes al agendar
-- Procesos manuales ineficientes
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
----
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
 
-## 🎯 Objetivo
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-Desarrollar una aplicación web intuitiva que permita a los pacientes reservar citas médicas en línea y a los consultorios gestionar su disponibilidad de manera organizada.
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
----
-
-## 👥 Usuarios objetivo
-
-- 🧑‍⚕️ Personal médico
-- 🧑 Pacientes
-
----
-
-## 🚀 Funcionalidades principales
-
-- 📅 Visualización de disponibilidad de citas
-- 📝 Reserva de citas médicas
-- 👤 Registro e inicio de sesión de usuarios
-- 🔎 Selección de fechas y horarios disponibles
-- 📋 Gestión de citas (visualización y estado)
-
----
-
-## 🧱 Arquitectura del frontend
-
-La aplicación sigue una arquitectura basada en componentes reutilizables, permitiendo escalabilidad y fácil mantenimiento.
-
----
-
-## 🛠️ Tecnologías utilizadas
-
-- React
-- TypeScript
-- HTML5 & CSS3
-- Material UI
-
-## 🔗 Integración con Backend
-
-El frontend se comunica con una API REST desarrollada en Spring Boot, encargada de:
-
-- Gestión de usuarios
-- Disponibilidad de citas
-- Persistencia de datos
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
