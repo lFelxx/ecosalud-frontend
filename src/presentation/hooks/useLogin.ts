@@ -6,6 +6,13 @@ import { useAuthContext } from '../context/AuthContext';
 
 const loginUseCase = new LoginUseCase(new AuthRepository());
 
+// Mock temporal — se reemplaza cuando el backend esté activo
+const MOCK_DB: Record<string, { id: number; name: string; role: 'PATIENT' | 'EDITOR' | 'ADMIN'; password: string }> = {
+  'admin@ecosalud.com': { id: 2, name: 'Angélica Camacho', role: 'ADMIN', password: 'admin123' },
+  'editor@ecosalud.com': { id: 3, name: 'Editor Ecosalud', role: 'EDITOR', password: 'editor123' },
+  'prueba@ecosalud.com': { id: 1, name: 'Paciente Prueba', role: 'PATIENT', password: 'ecosalud123' },
+};
+
 export function useLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -16,22 +23,18 @@ export function useLogin() {
     setLoading(true);
     setError(null);
 
-    // Mock temporal — se elimina cuando el backend esté activo
-    const MOCK_USERS: Record<string, string> = {
-      'prueba@ecosalud.com': 'ecosalud123',
-      'admin@ecosalud.com': 'admin123',
-    };
-
-    if (MOCK_USERS[email.trim()] && MOCK_USERS[email.trim()] === password.trim()) {
-      login('mock-token-dev', {
-        id: 1,
-        name: 'Paciente Prueba',
+    const mockUser = MOCK_DB[email.trim()];
+    if (mockUser && mockUser.password === password.trim()) {
+      login(`mock-token-${mockUser.role.toLowerCase()}`, {
+        id: mockUser.id,
+        name: mockUser.name,
         email: email.trim(),
-        role: 'PATIENT',
+        role: mockUser.role,
         status: 'ACTIVE',
       });
       setLoading(false);
-      navigate('/');
+      // Redirigir al panel si es admin/editor
+      navigate(mockUser.role !== 'PATIENT' ? '/admin' : '/');
       return;
     }
 

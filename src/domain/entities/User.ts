@@ -3,6 +3,6 @@ export interface User {
   name: string;
   email: string;
   phone?: string;
-  role: 'PATIENT' | 'ADMIN' | 'THERAPIST';
+  role: 'PATIENT' | 'ADMIN' | 'THERAPIST' | 'EDITOR';
   status: 'ACTIVE' | 'INACTIVE';
 }

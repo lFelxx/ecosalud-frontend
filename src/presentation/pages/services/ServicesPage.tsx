@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { ReactNode, SyntheticEvent } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
@@ -13,71 +13,66 @@ import PsychologyOutlinedIcon from '@mui/icons-material/PsychologyOutlined';
 import MedicalServicesOutlinedIcon from '@mui/icons-material/MedicalServicesOutlined';
 import SpaOutlinedIcon from '@mui/icons-material/SpaOutlined';
 import LocalPharmacyOutlinedIcon from '@mui/icons-material/LocalPharmacyOutlined';
+import BoltOutlinedIcon from '@mui/icons-material/BoltOutlined';
+import HealingOutlinedIcon from '@mui/icons-material/HealingOutlined';
+import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import NatureOutlinedIcon from '@mui/icons-material/NatureOutlined';
+import CheckIcon from '@mui/icons-material/Check';
 import Navbar from '../../components/common/Navbar';
 import Footer from '../../components/common/Footer';
+import ServiceDetailModal from './ServiceDetailModal';
+import type { ServiceDetail } from './ServiceDetailModal';
+import { useAdminData } from '../../context/AdminDataContext';
+import type { ServiceData } from '../../context/AdminDataContext';
 
 const FILTERS = ['Todas', 'Desintoxicación', 'Energía', 'Inmunidad', 'Dolor Crónico'];
 
-const SERVICES = [
-  {
-    icon: <AccessibilityNewOutlinedIcon sx={{ fontSize: 48, color: '#3DAA96' }} />,
-    name: 'Acupuntura',
-    description: 'Balance energético y alivio del dolor mediante técnicas milenarias integradas.',
-    category: 'Dolor Crónico',
-    image: '/assets/services/acupuntura.jpg',
-  },
-  {
-    icon: <AirOutlinedIcon sx={{ fontSize: 48, color: '#3DAA96' }} />,
-    name: 'Oxivenaciones',
-    description: 'Incremento de la oxigenación celular para potenciar el metabolismo.',
-    category: 'Energía',
-    image: '/assets/services/oxivenaciones.jpg',
-  },
-  {
-    icon: <WaterDropOutlinedIcon sx={{ fontSize: 48, color: '#3DAA96' }} />,
-    name: 'Sueroterapia dirigida',
-    description: 'Cócteles de micronutrientes para absorción inmediata y efectiva.',
-    category: 'Inmunidad',
-    image: '/assets/services/sueroterapia.jpg',
-  },
-  {
-    icon: <CloudOutlinedIcon sx={{ fontSize: 48, color: '#3DAA96' }} />,
-    name: 'Ozonoterapia',
-    description: 'Propiedades antiinflamatorias y moduladoras del sistema inmune.',
-    category: 'Desintoxicación',
-    image: '/assets/services/ozonoterapia.jpg',
-  },
-  {
-    icon: <PsychologyOutlinedIcon sx={{ fontSize: 48, color: '#3DAA96' }} />,
-    name: 'Terapia Neural',
-    description: 'Repolarización de membranas celulares para el sistema nervioso.',
-    category: 'Dolor Crónico',
-    image: '/assets/services/terapia-neural.jpg',
-  },
-  {
-    icon: <MedicalServicesOutlinedIcon sx={{ fontSize: 48, color: '#3DAA96' }} />,
-    name: 'Biopuntura',
-    description: 'Inyecciones de bajas dosis de bioterápicos para bioregulación natural.',
-    category: 'Desintoxicación',
-    image: '/assets/services/biopuntura.jpg',
-  },
-  {
-    icon: <LocalPharmacyOutlinedIcon sx={{ fontSize: 48, color: '#3DAA96' }} />,
-    name: 'Farmacología Vegetal',
-    description: 'Fórmulas personalizadas basadas en botánica médica avanzada.',
-    category: 'Inmunidad',
-    image: '/assets/services/farmacologia.jpg',
-  },
-  {
-    icon: <SpaOutlinedIcon sx={{ fontSize: 48, color: '#3DAA96' }} />,
-    name: 'Homeopatia',
-    description: 'Restauración de electrolitos y vitalidad para el máximo rendimiento.',
-    category: 'Energía',
-    image: '/assets/services/homeopatia.jpg',
-  },
+// ── Ícono principal por ID de servicio ────────────────────────────────────────
+const SERVICE_ICONS: Record<string, ReactNode> = {
+  'acupuntura':          <AccessibilityNewOutlinedIcon sx={{ fontSize: 48, color: '#3DAA96' }} />,
+  'oxivenaciones':       <AirOutlinedIcon             sx={{ fontSize: 48, color: '#3DAA96' }} />,
+  'sueroterapia-dirigida': <WaterDropOutlinedIcon     sx={{ fontSize: 48, color: '#3DAA96' }} />,
+  'ozonoterapia':        <CloudOutlinedIcon           sx={{ fontSize: 48, color: '#3DAA96' }} />,
+  'terapia-neural':      <PsychologyOutlinedIcon      sx={{ fontSize: 48, color: '#3DAA96' }} />,
+  'biopuntura':          <MedicalServicesOutlinedIcon sx={{ fontSize: 48, color: '#3DAA96' }} />,
+  'farmacologia-vegetal':<LocalPharmacyOutlinedIcon   sx={{ fontSize: 48, color: '#3DAA96' }} />,
+  'homeopatia':          <SpaOutlinedIcon             sx={{ fontSize: 48, color: '#3DAA96' }} />,
+};
+
+// Íconos que rotan para los beneficios (cuando no hay ícono específico)
+const BENEFIT_ICONS: ReactNode[] = [
+  <SpaOutlinedIcon />,
+  <BoltOutlinedIcon />,
+  <HealingOutlinedIcon />,
+  <ShieldOutlinedIcon />,
+  <FavoriteBorderIcon />,
+  <NatureOutlinedIcon />,
+  <CheckIcon />,
 ];
 
-// Placeholder cuando la imagen no está disponible
+const DEFAULT_ICON = <SpaOutlinedIcon sx={{ fontSize: 48, color: '#3DAA96' }} />;
+
+// ── Convierte ServiceData (admin) → ServiceDetail (modal/tarjeta) ─────────────
+function toServiceDetail(s: ServiceData): ServiceDetail {
+  return {
+    name: s.name,
+    category: s.category,
+    description: s.description,
+    // Si el admin subió una imagen (base64) la usamos directamente;
+    // si no, intentamos cargar la imagen estática por convención de nombre.
+    image: s.imageBase64 ?? `/assets/services/${s.id}.jpg`,
+    icon: SERVICE_ICONS[s.id] ?? DEFAULT_ICON,
+    benefits: s.benefitsText.map((text, i) => ({
+      icon: BENEFIT_ICONS[i % BENEFIT_ICONS.length],
+      text,
+    })),
+    duration: s.duration,
+    price: s.price,
+  };
+}
+
+// ── Placeholder cuando la imagen no está disponible ──────────────────────────
 function ImagePlaceholder({ icon }: { icon: ReactNode }) {
   return (
     <Box
@@ -110,11 +105,16 @@ function ServiceImage({ src, icon }: { src: string; icon: ReactNode }) {
 }
 
 export default function ServicesPage() {
+  const { services } = useAdminData();
   const [activeFilter, setActiveFilter] = useState('Todas');
+  const [selectedService, setSelectedService] = useState<ServiceDetail | null>(null);
+
+  // Se recalcula solo cuando el array de servicios cambia en el contexto
+  const serviceDetails = useMemo(() => services.map(toServiceDetail), [services]);
 
   const filtered = activeFilter === 'Todas'
-    ? SERVICES
-    : SERVICES.filter((s) => s.category === activeFilter);
+    ? serviceDetails
+    : serviceDetails.filter((s) => s.category === activeFilter);
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#F4FAF8', display: 'flex', flexDirection: 'column' }}>
@@ -148,7 +148,6 @@ export default function ServicesPage() {
                 position: 'relative',
               }}
             >
-              {/* Reemplaza con la imagen del consultorio cuando la tengas */}
               <Box
                 component="img"
                 src="/assets/services/clinic-hero.jpg"
@@ -216,7 +215,6 @@ export default function ServicesPage() {
                   },
                 }}
               >
-                {/* Imagen */}
                 <ServiceImage src={service.image} icon={service.icon} />
 
                 <CardContent sx={{ p: 2.5, flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -224,7 +222,11 @@ export default function ServicesPage() {
                     {service.name}
                   </Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6, flex: 1, mb: 2 }}>
-                    {service.description}
+                    {service.description.slice(0, 90)}…
+                  </Typography>
+
+                  <Typography variant="body2" sx={{ color: '#3DAA96', fontWeight: 700, mb: 1.5, fontSize: '0.9rem' }}>
+                    {service.price} · {service.duration}
                   </Typography>
 
                   <Button
@@ -243,15 +245,19 @@ export default function ServicesPage() {
                     Agendar
                   </Button>
                   <Link
-                    component={RouterLink}
-                    to={`/services/${service.name.toLowerCase().replace(/\s+/g, '-')}`}
+                    component="button"
                     underline="none"
+                    onClick={() => setSelectedService(service)}
                     sx={{
                       display: 'block',
                       textAlign: 'center',
                       color: '#3DAA96',
                       fontWeight: 600,
                       fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      background: 'none',
+                      border: 'none',
+                      p: 0,
                       '&:hover': { textDecoration: 'underline' },
                     }}
                   >
@@ -266,6 +272,12 @@ export default function ServicesPage() {
       </Container>
 
       <Footer />
+
+      {/* ── Modal de detalle ── */}
+      <ServiceDetailModal
+        service={selectedService}
+        onClose={() => setSelectedService(null)}
+      />
     </Box>
   );
 }

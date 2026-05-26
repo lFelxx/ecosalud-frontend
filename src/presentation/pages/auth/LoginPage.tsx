@@ -13,18 +13,20 @@ import {
   IconButton,
   Alert,
   CircularProgress,
+  Chip,
 } from '@mui/material';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { useLogin } from '../../hooks/useLogin';
 import doctorImage from '../../../assets/doctor-hero.jpg';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('prueba@ecosalud.com');
+  const [password, setPassword] = useState('ecosalud123');
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
   const { handleLogin, loading, error } = useLogin();
@@ -126,6 +128,58 @@ export default function LoginPage() {
             <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 4 }}>
               Ingresa tus credenciales para acceder a tu cuenta.
             </Typography>
+
+            {/* Banner modo demo */}
+            <Box
+              sx={{
+                bgcolor: '#E8F5F0',
+                border: '1px solid #B2DDD4',
+                borderRadius: 2,
+                p: 1.5,
+                mb: 2.5,
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 1,
+              }}
+            >
+              <InfoOutlinedIcon sx={{ fontSize: 18, color: '#3DAA96', mt: 0.1, flexShrink: 0 }} />
+              <Box>
+                <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: '#1A2E2A', lineHeight: 1.3 }}>
+                  Modo demo — credenciales precargadas
+                </Typography>
+                <Typography sx={{ fontSize: '0.73rem', color: '#5A7A74', mt: 0.3, lineHeight: 1.4 }}>
+                  Haz clic en <strong>Iniciar Sesión</strong> para explorar como paciente, o usa{' '}
+                  <Box
+                    component="span"
+                    onClick={() => { setEmail('admin@ecosalud.com'); setPassword('admin123'); }}
+                    sx={{ color: '#3DAA96', fontWeight: 700, cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted' }}
+                  >
+                    admin@ecosalud.com
+                  </Box>
+                  {' '}para el panel de administración.
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 0.8, mt: 0.8, flexWrap: 'wrap' }}>
+                  <Chip
+                    label="Paciente"
+                    size="small"
+                    onClick={() => { setEmail('prueba@ecosalud.com'); setPassword('ecosalud123'); }}
+                    sx={{ height: 20, fontSize: '0.65rem', fontWeight: 700, bgcolor: '#D4EDE7', color: '#2B8A78', cursor: 'pointer', '&:hover': { bgcolor: '#B2DDD4' } }}
+                  />
+                  <Chip
+                    label="Editor"
+                    size="small"
+                    onClick={() => { setEmail('editor@ecosalud.com'); setPassword('editor123'); }}
+                    sx={{ height: 20, fontSize: '0.65rem', fontWeight: 700, bgcolor: '#FFF3E0', color: '#F39C12', cursor: 'pointer', '&:hover': { bgcolor: '#FFE0B2' } }}
+                  />
+                  <Chip
+                    label="Admin"
+                    size="small"
+                    onClick={() => { setEmail('admin@ecosalud.com'); setPassword('admin123'); }}
+                    sx={{ height: 20, fontSize: '0.65rem', fontWeight: 700, bgcolor: '#E8F5F0', color: '#3DAA96', cursor: 'pointer', '&:hover': { bgcolor: '#B2DDD4' } }}
+                  />
+                </Box>
+              </Box>
+            </Box>
 
             {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
 
