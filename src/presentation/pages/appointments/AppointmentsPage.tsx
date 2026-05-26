@@ -227,7 +227,7 @@ function RecommendationsModal({ open, therapyName, onClose }: { open: boolean; t
       onClose={onClose}
       maxWidth="xs"
       fullWidth
-      PaperProps={{ sx: { borderRadius: 4, overflow: 'hidden' } }}
+      slotProps={{ paper: { sx: { borderRadius: 4, overflow: 'hidden' } } }}
       sx={{
         '& .MuiBackdrop-root': {
           bgcolor: 'rgba(26,62,56,0.60)',
@@ -369,7 +369,7 @@ function CancelModal({
       onClose={handleClose}
       maxWidth="xs"
       fullWidth
-      PaperProps={{ sx: { borderRadius: 4, overflow: 'hidden' } }}
+      slotProps={{ paper: { sx: { borderRadius: 4, overflow: 'hidden' } } }}
       sx={{
         '& .MuiBackdrop-root': {
           bgcolor: 'rgba(26,62,56,0.60)',

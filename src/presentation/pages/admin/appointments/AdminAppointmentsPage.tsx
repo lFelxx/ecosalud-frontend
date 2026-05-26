@@ -440,7 +440,7 @@ function BookDialog({
       onClose={handleClose}
       maxWidth="sm"
       fullWidth
-      PaperProps={{ sx: { borderRadius: 3 } }}
+      slotProps={{ paper: { sx: { borderRadius: 3 } } }}
     >
       <DialogTitle sx={{ fontWeight: 800, color: '#1A2E2A', fontSize: '1rem', pb: 1 }}>
         <Stack direction="row" sx={{ alignItems: 'center', gap: 1 }}>
@@ -741,7 +741,7 @@ function TherapyPlanDialog({
   const canCreate = !!s.selectedUser && !!s.service && !!s.startDate && s.totalSessions >= 1;
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth slotProps={{ paper: { sx: { borderRadius: 3 } } }}>
       <DialogTitle sx={{ fontWeight: 800, color: '#1A2E2A', fontSize: '1rem', pb: 1 }}>
         <Stack direction="row" sx={{ alignItems: 'center', gap: 1 }}>
           {(s.step === 'new-patient' || s.step === 'plan') && (
@@ -1075,7 +1075,7 @@ export default function AdminAppointmentsPage() {
       )}
 
       {/* ── Cancel Appointment Dialog ── */}
-      <Dialog open={Boolean(cancelDialog)} onClose={() => setCancelDialog(null)} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
+      <Dialog open={Boolean(cancelDialog)} onClose={() => setCancelDialog(null)} maxWidth="xs" fullWidth slotProps={{ paper: { sx: { borderRadius: 3 } } }}>
         <DialogTitle sx={{ fontWeight: 800, fontSize: '1rem', color: '#1A2E2A' }}>Cancelar cita</DialogTitle>
         <DialogContent>
           <Typography variant="body2" sx={{ fontSize: '0.88rem', mb: 2, color: '#5A7A74' }}>

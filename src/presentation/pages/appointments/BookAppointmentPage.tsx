@@ -556,7 +556,7 @@ export default function BookAppointmentPage() {
         open={confirmed}
         maxWidth="xs"
         fullWidth
-        PaperProps={{ sx: { borderRadius: 4, overflow: 'hidden' } }}
+        slotProps={{ paper: { sx: { borderRadius: 4, overflow: 'hidden' } } }}
         sx={{
           '& .MuiBackdrop-root': {
             bgcolor: 'rgba(26,62,56,0.60)',
