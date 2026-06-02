@@ -16,21 +16,8 @@ export default defineConfig({
     // Directorio de salida (Vercel lo detecta automáticamente)
     outDir: 'dist',
 
-    // Separar librerías grandes en chunks independientes para mejor caché
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          // React core en su propio chunk
-          'react-vendor': ['react', 'react-dom'],
-          // MUI en su propio chunk (es la dependencia más grande)
-          'mui-vendor': ['@mui/material', '@mui/icons-material'],
-          // React Router separado
-          'router-vendor': ['react-router-dom'],
-        },
-      },
-    },
-
-    // Umbral de advertencia de chunk size (en KB)
+    // Vite 8 usa Rolldown como bundler; maneja el code-splitting automáticamente.
+    // manualChunks de Rollup ya no aplica aquí.
     chunkSizeWarningLimit: 600,
   },
 
