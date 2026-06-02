@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
@@ -75,7 +75,7 @@ export default function LoginPage() {
         />
         <Box sx={{ position: 'relative', zIndex: 2 }}>
           <Typography variant="subtitle1" sx={{ color: '#3DAA96', mb: 1, letterSpacing: 0.5, fontWeight: 600 }}>
-            Ecosalud Market
+            Ecosalud
           </Typography>
           <Typography variant="h3" sx={{ color: '#1A2E2A', lineHeight: 1.2, mb: 2, fontWeight: 800 }}>
             Tu camino hacia el<br />bienestar integral.
@@ -286,7 +286,7 @@ export default function LoginPage() {
         </Box>
 
         <Typography variant="caption" color="text.secondary" sx={{ mt: 2 }}>
-          © 2026 Ecosalud Market. Todos los derechos reservados.
+          © 2026 Ecosalud. Todos los derechos reservados.
         </Typography>
       </Box>
     </Box>

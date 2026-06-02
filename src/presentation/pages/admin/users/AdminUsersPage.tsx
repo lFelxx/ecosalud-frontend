@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import {
   Box, Typography, Card, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Avatar, Chip, Select,
@@ -32,10 +32,10 @@ function genPassword(): string {
 // ── Abre el cliente de correo con las credenciales precargadas ────────────────
 function sendCredentialsMail(name: string, email: string, password: string, role: string) {
   const roleName = role === 'ADMIN' ? 'Administrador' : role === 'EDITOR' ? 'Editor' : 'Paciente';
-  const subject = encodeURIComponent('Tus credenciales de acceso – Ecosalud Market');
+  const subject = encodeURIComponent('Tus credenciales de acceso – Ecosalud');
   const body = encodeURIComponent(
     `Hola ${name},\n\n` +
-    `Se ha creado una cuenta para ti en el portal de Ecosalud Market.\n\n` +
+    `Se ha creado una cuenta para ti en el portal de Ecosalud.\n\n` +
     `── Tus credenciales ──────────────────────\n` +
     `Correo:       ${email}\n` +
     `Contraseña:   ${password}\n` +
@@ -45,7 +45,7 @@ function sendCredentialsMail(name: string, email: string, password: string, role
     `Por seguridad, te recomendamos cambiar tu contraseña después\n` +
     `de tu primer inicio de sesión.\n\n` +
     `Saludos,\n` +
-    `Equipo Ecosalud Market`,
+    `Equipo Ecosalud`,
   );
   window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_blank');
 }

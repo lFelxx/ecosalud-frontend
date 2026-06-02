@@ -1,4 +1,4 @@
-import { Link as RouterLink } from 'react-router-dom';
+﻿import { Link as RouterLink } from 'react-router-dom';
 import {
   Box, Typography, Container, Card, CardContent,
   Button, Grid, Avatar, Stack, Divider, Link,
@@ -346,7 +346,7 @@ export default function HomePage() {
                 </Typography>
 
                 <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7, mb: 3 }}>
-                  Con más de 15 años de experiencia integrando la ciencia moderna con terapias naturales, la Dra. Camacho guía cada tratamiento en Ecosalud Market. Su enfoque se centra en tratar la causa raíz, no solo los síntomas.
+                  Con más de 15 años de experiencia integrando la ciencia moderna con terapias naturales, la Dra. Camacho guía cada tratamiento en Ecosalud. Su enfoque se centra en tratar la causa raíz, no solo los síntomas.
                 </Typography>
 
                 <Stack direction="row" spacing={4}>

@@ -1,4 +1,4 @@
-import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
+﻿import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Box, Link, Button, Tooltip, Badge, IconButton } from '@mui/material';
 import SpaIcon from '@mui/icons-material/Spa';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -47,7 +47,7 @@ export default function Navbar() {
         >
           <SpaIcon sx={{ color: '#3DAA96', fontSize: 22 }} />
           <Typography variant="subtitle1" sx={{ color: '#3DAA96', whiteSpace: 'nowrap', fontWeight: 700 }}>
-            Ecosalud Market
+            Ecosalud
           </Typography>
         </Box>
 

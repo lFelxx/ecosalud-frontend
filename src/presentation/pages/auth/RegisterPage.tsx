@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
@@ -63,7 +63,7 @@ export default function RegisterPage() {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <SpaOutlinedIcon sx={{ color: 'rgba(255,255,255,0.7)', fontSize: 20 }} />
               <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>
-                Ecosalud Market
+                Ecosalud
               </Typography>
             </Box>
 
@@ -107,7 +107,7 @@ export default function RegisterPage() {
               <Box sx={{ display: 'flex', gap: 0.5 }}>
                 <FormatQuoteIcon sx={{ color: 'rgba(255,255,255,0.5)', fontSize: 18, mt: 0.3, flexShrink: 0 }} />
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.90)', fontStyle: 'italic', lineHeight: 1.5 }}>
-                  En Ecosalud Market, combinamos rigor científico con terapias alternativas para restaurar tu equilibrio vital.
+                  En Ecosalud, combinamos rigor científico con terapias alternativas para restaurar tu equilibrio vital.
                 </Typography>
               </Box>
             </Box>

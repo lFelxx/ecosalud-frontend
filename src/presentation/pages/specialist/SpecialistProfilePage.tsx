@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   Box, Typography, Container, Card, CardContent, Button,
@@ -27,7 +27,7 @@ import { useAdminData } from '../../context/AdminDataContext';
 
 const TESTIMONIALS = [
   { quote: 'Después de meses de dolor lumbar, la terapia neural con la Dra. Angélica me devolvió la movilidad. Su enfoque es humano y profundamente profesional.', name: 'Ricardo Mendoza', type: 'Paciente de Biopuntura' },
-  { quote: 'La farmacología vegetal fue la clave para regular mi metabolismo de forma orgánica. Ecosalud Market es un lugar de verdadera sanación.', name: 'Elena Vargas', type: 'Control Metabólico' },
+  { quote: 'La farmacología vegetal fue la clave para regular mi metabolismo de forma orgánica. Ecosalud es un lugar de verdadera sanación.', name: 'Elena Vargas', type: 'Control Metabólico' },
   { quote: 'Excelente atención. Se nota el respaldo académico de la Universidad Corpas en cada diagnóstico. Muy recomendada.', name: 'Javier Solano', type: 'Paciente Crónico' },
   { quote: 'La sueroterapia transformó mi energía. Me siento como nueva después de cada sesión con el equipo de Ecosalud.', name: 'Claudia Restrepo', type: 'Paciente de Sueroterapia' },
   { quote: 'La ozonoterapia fue clave para mi recuperación post-viral. Resultados sorprendentes en pocas sesiones.', name: 'Andrés Torres', type: 'Recuperación Viral' },
@@ -462,7 +462,7 @@ export default function SpecialistProfilePage() {
               underline="none"
               sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, color: '#9DBFBA', fontWeight: 600, fontSize: '0.85rem', '&:hover': { color: '#3DAA96' } }}
             >
-              <SpaOutlinedIcon sx={{ fontSize: 16 }} /> Volver a Ecosalud Market
+              <SpaOutlinedIcon sx={{ fontSize: 16 }} /> Volver a Ecosalud
             </Link>
           </Box>
         </Container>

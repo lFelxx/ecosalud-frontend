@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+﻿import { useState, useMemo } from 'react';
 import {
   Box, Typography, Grid, Card, CardContent, Chip, Stack,
   Button, TextField, MenuItem, Select, FormControl, InputLabel,
@@ -614,7 +614,7 @@ function BookDialog({
             </Box>
             <Typography variant="h6" sx={{ fontWeight: 800, color: '#1A2E2A' }}>Cita agendada y perfil creado</Typography>
             <Typography variant="body2" color="text.secondary">
-              Comparte las siguientes credenciales con el paciente para que pueda acceder a Ecosalud Market.
+              Comparte las siguientes credenciales con el paciente para que pueda acceder a Ecosalud.
             </Typography>
 
             <Box sx={{ bgcolor: '#F4FAF8', border: '1px solid #B2DDD4', borderRadius: 2, p: 2.5, textAlign: 'left' }}>

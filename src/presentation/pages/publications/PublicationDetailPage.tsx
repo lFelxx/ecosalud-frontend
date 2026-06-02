@@ -1,4 +1,4 @@
-import { Link as RouterLink, useParams, Navigate } from 'react-router-dom';
+﻿import { Link as RouterLink, useParams, Navigate } from 'react-router-dom';
 import {
   Box, Typography, Container, Chip, Avatar, Button, Divider,
 } from '@mui/material';
@@ -198,7 +198,7 @@ export default function PublicationDetailPage() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <SpaOutlinedIcon sx={{ color: '#3DAA96', fontSize: 20 }} />
             <Typography sx={{ fontWeight: 600, color: '#2B8A78', fontSize: '0.875rem' }}>
-              Ecosalud Market — Medicina Integrativa
+              Ecosalud — Medicina Integrativa
             </Typography>
           </Box>
           <Button

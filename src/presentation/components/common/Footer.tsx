@@ -1,4 +1,4 @@
-import { Box, Typography, Link, Stack, IconButton } from '@mui/material';
+﻿import { Box, Typography, Link, Stack, IconButton } from '@mui/material';
 import VerifiedUserOutlinedIcon from '@mui/icons-material/VerifiedUserOutlined';
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
@@ -21,10 +21,10 @@ export default function Footer() {
     >
       <Box>
         <Typography variant="subtitle1" sx={{ color: '#3DAA96', fontWeight: 700 }}>
-          Ecosalud Market
+          Ecosalud
         </Typography>
         <Typography variant="caption" color="text.secondary">
-          © 2026 Ecosalud Market. Bogotá, Colombia. Specialist Angélica Camacho.
+          © 2026 Ecosalud. Bogotá, Colombia. Specialist Angélica Camacho.
         </Typography>
       </Box>
 

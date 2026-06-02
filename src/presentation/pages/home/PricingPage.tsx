@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   Box, Typography, Container, Grid, Card, CardContent,
@@ -113,10 +113,10 @@ const PLANS = [
 const TESTIMONIALS = [
   {
     name:      'Dra. Angélica Camacho',
-    role:      'Medicina Alternativa e Integrativa · Bogotá',
+    role:      'Terapias alternativas y farmacología vegetal · Bogotá',
     avatar:    'AC',
     color:     '#3DAA96',
-    quote:     'Ecosalud Market transformó la forma en que gestiono mi consulta. Mis pacientes agendan solos y yo me concentro en lo que importa: sanar.',
+    quote:     'Ecosalud transformó la forma en que gestiono mi consulta. Mis pacientes agendan solos y yo me concentro en lo que importa: sanar.',
     plan:      'Clínica',
     verified:  true,
   },
@@ -394,7 +394,7 @@ export default function PricingPage() {
       <Box sx={{ bgcolor: '#F0FBF8', py: 7 }}>
         <Container maxWidth="md">
           <Typography variant="h5" sx={{ fontWeight: 800, color: '#1A3E38', textAlign: 'center', mb: 4 }}>
-            Clínicas que ya confían en Ecosalud Market
+            Clínicas que ya confían en Ecosalud
           </Typography>
           <Grid container spacing={3}>
             {TESTIMONIALS.map((t) => (
@@ -475,7 +475,7 @@ export default function PricingPage() {
           ¿Listo para digitalizar tu clínica?
         </Typography>
         <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.82)', mb: 4 }}>
-          Más de 2 clínicas ya gestionan sus pacientes en Ecosalud Market.
+          Más de 2 clínicas ya gestionan sus pacientes en Ecosalud.
         </Typography>
         <Stack direction={{ xs: 'column', sm: 'row' }} sx={{ gap: 2, justifyContent: 'center' }}>
           <Button
