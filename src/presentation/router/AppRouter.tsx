@@ -5,6 +5,7 @@ import { useAuthContext } from '../context/AuthContext';
 
 import LandingPage from '../pages/home/LandingPage';
 import HomePage from '../pages/home/HomePage';
+import PricingPage from '../pages/home/PricingPage';
 import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
 import DashboardPage from '../pages/dashboard/DashboardPage';
@@ -56,6 +57,7 @@ export default function AppRouter() {
         <Route path="/" element={<HomeRoute />} />
 
         {/* Páginas públicas */}
+        <Route path="/precios" element={<PricingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/especialista" element={<SpecialistProfilePage />} />
