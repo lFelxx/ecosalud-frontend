@@ -5,4 +5,5 @@ export interface User {
   phone?: string;
   role: 'PATIENT' | 'ADMIN' | 'THERAPIST' | 'EDITOR';
   status: 'ACTIVE' | 'INACTIVE';
+  tenantSchema?: string | null;
 }

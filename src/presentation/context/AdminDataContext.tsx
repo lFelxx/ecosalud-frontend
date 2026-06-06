@@ -1,5 +1,6 @@
-﻿import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import axiosClient from '../../infrastructure/http/axiosClient';
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 
@@ -64,8 +65,8 @@ export interface AppointmentData {
   patientName: string;
   patientEmail: string;
   service: string;
-  date: string;    // YYYY-MM-DD
-  time: string;    // HH:MM
+  date: string;
+  time: string;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
   notes?: string;
 }
@@ -78,96 +79,193 @@ export interface TherapyPlanData {
   service: string;
   sessionsTotal: number;
   sessionsCompleted: number;
-  startDate: string;   // YYYY-MM-DD
+  startDate: string;
   status: 'active' | 'paused' | 'completed' | 'cancelled';
   notes?: string;
 }
 
-// ── Utilidad ID ───────────────────────────────────────────────────────────────
+// ── Mappers backend ↔ frontend ────────────────────────────────────────────────
 
-function uid(): string {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function serviceFromApi(s: any): ServiceData {
+  return {
+    id: String(s.id),
+    name: s.name ?? '',
+    category: s.category ?? '',
+    description: s.description ?? '',
+    benefitsText: s.benefits ? s.benefits.split('\n').filter(Boolean) : [],
+    duration: s.durationMinutes ? `${s.durationMinutes} min` : '',
+    price: s.priceCop ? `$${Number(s.priceCop).toLocaleString('es-CO')} COP` : '',
+    imageBase64: s.imageUrl ?? undefined,
+  };
 }
 
-// ── Datos iniciales ───────────────────────────────────────────────────────────
+function serviceToApi(patch: Partial<ServiceData>) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const result: any = {};
+  if (patch.name !== undefined) result.name = patch.name;
+  if (patch.category !== undefined) result.category = patch.category;
+  if (patch.description !== undefined) result.description = patch.description;
+  if (patch.benefitsText !== undefined) result.benefits = patch.benefitsText.join('\n');
+  if (patch.duration !== undefined) result.durationMinutes = parseInt(patch.duration) || null;
+  if (patch.price !== undefined) result.priceCop = parseFloat(patch.price.replace(/[^0-9]/g, '')) || null;
+  if (patch.imageBase64 !== undefined) result.imageUrl = patch.imageBase64;
+  return result;
+}
 
-const INITIAL_SERVICES: ServiceData[] = [
-  { id: 'acupuntura', name: 'Acupuntura', category: 'Dolor Crónico', description: 'Nuestra sesión de Acupuntura Integral combina técnicas ancestrales con un enfoque moderno para tratar el cuerpo de manera holística. Mediante la inserción precisa de agujas filiformes en puntos estratégicos, estimulamos el flujo de energía vital (Qi) para restaurar el equilibrio sistémico.', benefitsText: ['Alivio profundo del estrés y ansiedad', 'Equilibrio de los canales energéticos', 'Manejo efectivo del dolor crónico'], duration: '60 min', price: '$150.000 COP' },
-  { id: 'oxivenaciones', name: 'Oxivenaciones', category: 'Energía', description: 'El tratamiento de Oxivenaciones incrementa la oxigenación celular para potenciar el metabolismo y la regeneración de tejidos. A través de la administración controlada de oxígeno puro, activamos los mecanismos naturales de energía y recuperación del organismo.', benefitsText: ['Aumento inmediato de energía y vitalidad', 'Mejora de la función respiratoria celular', 'Optimización del rendimiento físico y mental'], duration: '45 min', price: '$120.000 COP' },
-  { id: 'sueroterapia-dirigida', name: 'Sueroterapia dirigida', category: 'Inmunidad', description: 'La Sueroterapia Dirigida administra cócteles personalizados de vitaminas, minerales y aminoácidos directamente en el torrente sanguíneo para una absorción del 100%. Cada fórmula es diseñada según las necesidades específicas del paciente.', benefitsText: ['Fortalecimiento inmediato del sistema inmune', 'Hidratación y nutrición celular profunda', 'Recuperación acelerada post-esfuerzo o enfermedad'], duration: '60 min', price: '$180.000 COP' },
-  { id: 'ozonoterapia', name: 'Ozonoterapia', category: 'Desintoxicación', description: 'La Ozonoterapia utiliza las propiedades antiinflamatorias, antibacterianas y moduladoras del ozono médico para desintoxicar el organismo y activar sus defensas naturales. Es una terapia segura y con amplio respaldo científico internacional.', benefitsText: ['Potente efecto antiinflamatorio sistémico', 'Eliminación de patógenos y toxinas acumuladas', 'Modulación y fortalecimiento del sistema inmune'], duration: '60 min', price: '$160.000 COP' },
-  { id: 'terapia-neural', name: 'Terapia Neural', category: 'Dolor Crónico', description: 'La Terapia Neural actúa sobre los campos de interferencia del sistema nervioso autónomo, repolarizando membranas celulares alteradas mediante microinyecciones de anestésico local. Ideal para tratar dolores crónicos, cicatrices y desequilibrios funcionales de larga data.', benefitsText: ['Eliminación de campos de interferencia neurales', 'Alivio duradero de dolores crónicos complejos', 'Restauración del equilibrio del sistema nervioso'], duration: '45 min', price: '$140.000 COP' },
-  { id: 'biopuntura', name: 'Biopuntura', category: 'Desintoxicación', description: 'La Biopuntura combina la precisión de la acupuntura con el poder de los bioterápicos homeopáticos, inyectando microsoluciones en puntos específicos del cuerpo. Este enfoque activa los mecanismos de biorregulación propios del organismo para sanar desde adentro.', benefitsText: ['Activación de la capacidad de autocuración natural', 'Desintoxicación y biorregulación celular profunda', 'Sin efectos secundarios: 100% biológico'], duration: '30 min', price: '$130.000 COP' },
-  { id: 'farmacologia-vegetal', name: 'Farmacología Vegetal', category: 'Inmunidad', description: 'La Farmacología Vegetal diseña fórmulas botánicas personalizadas basadas en la ciencia de las plantas medicinales. Combinamos extractos, tinturas y cápsulas de alta calidad para crear tratamientos integrales que potencian la inmunidad y el equilibrio hormonal.', benefitsText: ['Fórmulas 100% naturales y personalizadas', 'Fortalecimiento progresivo del sistema inmune', 'Respaldo en fitoquímica y etnobotánica médica'], duration: '60 min', price: '$100.000 COP' },
-  { id: 'homeopatia', name: 'Homeopatía', category: 'Energía', description: 'La Homeopatía trabaja con diluciones ultra-moleculares de sustancias naturales para estimular la respuesta curativa del cuerpo. Nuestro enfoque restaura la vitalidad, el equilibrio emocional y la energía vital sin interferir con otros tratamientos médicos.', benefitsText: ['Restauración del equilibrio energético y emocional', 'Compatible con cualquier tratamiento médico', 'Tratamiento sin contraindicaciones ni toxicidad'], duration: '45 min', price: '$90.000 COP' },
-];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function postFromApi(p: any): PostData {
+  return {
+    id: String(p.id),
+    title: p.title ?? '',
+    excerpt: p.excerpt ?? '',
+    content: p.content ?? '',
+    imageBase64: p.imageUrl ?? undefined,
+    status: p.status === 'published' ? 'published' : 'draft',
+    tags: p.tags ? p.tags.split(',').map((t: string) => t.trim()).filter(Boolean) : [],
+    authorId: p.authorId ?? 0,
+    authorName: p.authorName ?? '',
+    createdAt: p.createdAt ?? new Date().toISOString(),
+    updatedAt: p.updatedAt ?? new Date().toISOString(),
+    publishedAt: p.publishedAt ?? undefined,
+  };
+}
 
-const d = (days: number) => new Date(Date.now() - days * 86400000).toISOString();
+function postToApi(data: Partial<PostData> & { title?: string }) {
+  return {
+    title: data.title,
+    excerpt: data.excerpt,
+    content: data.content,
+    imageUrl: data.imageBase64,
+    status: data.status,
+    tags: Array.isArray(data.tags) ? data.tags.join(',') : data.tags,
+    authorId: data.authorId,
+    authorName: data.authorName,
+  };
+}
 
-const INITIAL_POSTS: PostData[] = [
-  { id: 'post-1', title: 'Los beneficios de la Ozonoterapia para la salud intestinal', excerpt: 'Descubre cómo el ozono médico transforma la salud del sistema digestivo y refuerza las defensas naturales del organismo de forma progresiva y segura.', content: 'La Ozonoterapia es una de las terapias más versátiles de la medicina biológica moderna. En el contexto de la salud intestinal, el ozono actúa como un potente modulador del microbioma, favoreciendo el equilibrio entre las bacterias benéficas y los patógenos.\n\n¿Cómo funciona?\n\nEl ozono médico se administra en diferentes formas según el caso clínico: rectal, intravenosa o tópica. En todos los casos, su mecanismo de acción central es la modulación del sistema inmune y la mejora de la oxigenación tisular.\n\nBeneficios documentados:\n\n• Reducción de la inflamación intestinal crónica\n• Eliminación de parásitos, bacterias y hongos resistentes\n• Mejora de la permeabilidad intestinal\n• Aumento de la absorción de nutrientes\n• Regulación del tránsito intestinal\n\nEn Ecosalud, cada protocolo de Ozonoterapia es diseñado individualmente por la Dra. Angélica Camacho, considerando el historial clínico y los objetivos de salud de cada paciente.\n\nResultados esperados\n\nLa mayoría de los pacientes reportan mejoría significativa después de 4 a 6 sesiones. El tratamiento completo suele comprender entre 10 y 20 aplicaciones dependiendo del diagnóstico.', status: 'published', tags: ['Ozonoterapia', 'Salud Intestinal', 'Bienestar'], authorId: 2, authorName: 'Dra. Angélica Camacho', createdAt: d(10), updatedAt: d(8), publishedAt: d(8) },
-  { id: 'post-2', title: 'Guía de nutrición integrativa: Sueroterapia y vitalidad', excerpt: 'Los sueros vitamínicos intravenosos son una de las herramientas más potentes para restaurar la energía celular y fortalecer el sistema inmunológico en tiempo récord.', content: 'La Sueroterapia Dirigida representa un salto cualitativo frente a la suplementación oral tradicional. Al administrar micronutrientes directamente en el torrente sanguíneo, garantizamos una biodisponibilidad del 100%, algo imposible de lograr por vía digestiva.\n\n¿Qué contienen nuestros sueros?\n\nCada fórmula es personalizada, pero los componentes más frecuentes incluyen:\n\n• Vitamina C en altas dosis (efecto inmunoestimulante y antioxidante)\n• Complejo B (energía celular y función neurológica)\n• Magnesio (relajación muscular y función cardíaca)\n• Zinc (inmunidad y cicatrización)\n• Glutatión (el antioxidante maestro del organismo)\n• Aminoácidos esenciales\n\n¿Para quién está indicada?\n\nLa Sueroterapia es ideal para personas con fatiga crónica, estrés elevado, recuperación post-viral, deportistas de alto rendimiento y quienes buscan optimizar su salud de forma preventiva.\n\nSesión típica\n\nCada sesión dura entre 45 y 60 minutos. Se realiza en un ambiente tranquilo y controlado, con seguimiento médico permanente. La frecuencia varía entre semanal y mensual según el objetivo terapéutico.', status: 'published', tags: ['Sueroterapia', 'Vitaminas', 'Energía', 'Inmunidad'], authorId: 2, authorName: 'Dra. Angélica Camacho', createdAt: d(5), updatedAt: d(4), publishedAt: d(4) },
-  { id: 'post-3', title: '¿Qué es la Biopuntura y cómo puede transformar tu salud?', excerpt: 'Una terapia innovadora que une la sabiduría ancestral de la acupuntura con la precisión de los bioterápicos modernos para activar los mecanismos de autocuración del cuerpo.', content: 'La Biopuntura es una disciplina terapéutica desarrollada en Europa que combina dos poderosas herramientas: la acupuntura tradicional y los bioterápicos homeopáticos inyectables.\n\nA diferencia de la acupuntura clásica, que utiliza agujas secas, la Biopuntura introduce micro-dosis de sustancias biológicas en puntos específicos del organismo. Estas sustancias actúan como mensajes terapéuticos que el cuerpo interpreta y utiliza para iniciar su proceso natural de curación.\n\nCondiciones que trata:\n\n• Dolores musculares y articulares crónicos\n• Lesiones deportivas y tendinitis\n• Procesos inflamatorios de repetición\n• Desintoxicación hepática y renal\n• Alergias y condiciones autoinmunes\n• Cicatrices problemáticas\n\nVentajas sobre otros tratamientos:\n\nAl trabajar con sustancias 100% biológicas en dosis mínimas, la Biopuntura no produce efectos secundarios y es perfectamente compatible con cualquier tratamiento médico convencional.\n\nProtocolo estándar\n\nUn protocolo básico consta de 6 a 10 sesiones de 30 minutos cada una, con frecuencia semanal o bisemanal.', status: 'published', tags: ['Biopuntura', 'Terapia Natural', 'Dolor'], authorId: 3, authorName: 'Editor Ecosalud', createdAt: d(2), updatedAt: d(1), publishedAt: d(1) },
-  { id: 'post-4', title: '🌿 Promoción especial: Paquete Bienestar Integral', excerpt: 'Durante este mes, accede a nuestro paquete de 3 terapias con un descuento exclusivo para pacientes nuevos y existentes. Cupos limitados.', content: 'Queremos que más personas puedan experimentar la transformación que brinda la medicina integrativa. Por eso, durante este mes hemos diseñado un paquete especial que combina tres de nuestras terapias más populares a un precio accesible.\n\n¿Qué incluye el Paquete Bienestar Integral?\n\n✅ 1 sesión de Sueroterapia personalizada\n✅ 2 sesiones de Ozonoterapia\n✅ 1 consulta de seguimiento con la Dra. Angélica Camacho\n\nValor regular: $490.000 COP\nValor del paquete: $350.000 COP\n\n¡Ahorra $140.000 COP!\n\nCondiciones:\n\n• Válido para pacientes nuevos y existentes\n• Debe agendarse antes del último día del mes\n• Las sesiones deben completarse en un período máximo de 45 días\n• Cupos disponibles: 15\n\n¿Cómo reservar?\n\nHaz clic en "Agendar ahora" en cualquier terapia de nuestro catálogo, o escríbenos directamente para coordinar tu paquete personalizado.\n\n¡Tu bienestar no puede esperar!', status: 'draft', tags: ['Promoción', 'Oferta', 'Bienestar'], authorId: 2, authorName: 'Dra. Angélica Camacho', createdAt: d(1), updatedAt: d(0) },
-];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function appointmentFromApi(a: any): AppointmentData {
+  const statusMap: Record<string, AppointmentData['status']> = {
+    PENDIENTE: 'pending', CONFIRMADA: 'confirmed',
+    COMPLETADA: 'completed', CANCELADA: 'cancelled',
+  };
+  return {
+    id: String(a.id),
+    patientId: a.patientId ?? 0,
+    patientName: a.patientName ?? '',
+    patientEmail: a.patientEmail ?? '',
+    service: a.serviceName ?? '',
+    date: a.appointmentDate ?? '',
+    time: a.appointmentTime ?? '',
+    status: statusMap[a.status] ?? 'pending',
+    notes: a.notes ?? undefined,
+  };
+}
 
-const INITIAL_SPECIALIST: SpecialistData = {
+function appointmentStatusToApi(status: AppointmentData['status']): string {
+  const map: Record<string, string> = {
+    pending: 'PENDIENTE', confirmed: 'CONFIRMADA',
+    completed: 'COMPLETADA', cancelled: 'CANCELADA',
+  };
+  return map[status] ?? 'PENDIENTE';
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function specialistFromApi(s: any): SpecialistData {
+  const creds = (s.registrationNumber ?? '').split('|');
+  return {
+    name: s.name ?? '',
+    badge: s.badge ?? '',
+    specialty: s.specialty ?? '',
+    university: s.university ?? '',
+    bio: s.bio ?? '',
+    credential1: creds[0] ?? '',
+    credential2: creds[1] ?? '',
+    photoBase64: s.photoUrl ?? undefined,
+  };
+}
+
+const SPECIALIST_FALLBACK: SpecialistData = {
   name: 'Dra. Angélica Camacho',
   badge: 'Especialista Líder',
   specialty: 'Terapias Alternativas y Farmacología Vegetal',
   university: 'Universidad Juan N Corpas',
-  bio: 'Egresada de la prestigiosa Universidad Juan N Corpas, la Dra. Camacho integra la sabiduría de la medicina tradicional con el rigor científico moderno. Con más de una década de experiencia, se dedica a proporcionar alternativas terapéuticas que honran la fisiología natural del cuerpo.',
+  bio: 'Egresada de la prestigiosa Universidad Juan N Corpas, la Dra. Camacho integra la sabiduría de la medicina tradicional con el rigor científico moderno.',
   credential1: 'Certificación Médica',
   credential2: 'Especialista Corpas',
 };
 
-const today = new Date();
-const fd = (daysOffset: number, h: number, m: number): { date: string; time: string } => {
-  const d = new Date(today);
-  d.setDate(today.getDate() + daysOffset);
+// ── Mappers usuarios backend ↔ frontend ───────────────────────────────────────
+
+const ROLE_FROM_API: Record<string, UserData['role']> = {
+  USER: 'PATIENT', THERAPIST: 'EDITOR', ADMIN: 'ADMIN',
+  PATIENT: 'PATIENT', EDITOR: 'EDITOR',
+};
+const ROLE_TO_API: Record<UserData['role'], string> = {
+  PATIENT: 'USER', EDITOR: 'THERAPIST', ADMIN: 'ADMIN',
+};
+const STATUS_FROM_API: Record<string, UserData['status']> = {
+  ACTIVO: 'ACTIVE', INACTIVO: 'INACTIVE', INABILITADO: 'INACTIVE', ATENDIDO: 'INACTIVE',
+  ACTIVE: 'ACTIVE', INACTIVE: 'INACTIVE',
+};
+const STATUS_TO_API: Record<UserData['status'], string> = {
+  ACTIVE: 'ACTIVO', INACTIVE: 'INACTIVO',
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function userFromApi(u: any): UserData {
   return {
-    date: d.toISOString().slice(0, 10),
-    time: `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`,
+    id: u.id,
+    name: u.name ?? '',
+    email: u.email ?? '',
+    role: ROLE_FROM_API[u.role] ?? 'PATIENT',
+    status: STATUS_FROM_API[u.status] ?? 'ACTIVE',
+    joinedAt: u.createdAt ? u.createdAt.substring(0, 10) : new Date().toISOString().substring(0, 10),
   };
+}
+
+// ── Mappers planes de terapia backend ↔ frontend ──────────────────────────────
+
+const PLAN_STATUS_FROM_API: Record<string, TherapyPlanData['status']> = {
+  ACTIVO: 'active', PAUSADO: 'paused', COMPLETADO: 'completed', CANCELADO: 'cancelled',
+};
+const PLAN_STATUS_TO_API: Record<TherapyPlanData['status'], string> = {
+  active: 'ACTIVO', paused: 'PAUSADO', completed: 'COMPLETADO', cancelled: 'CANCELADO',
 };
 
-const INITIAL_APPOINTMENTS: AppointmentData[] = [
-  { id: 'apt-1', patientId: 4, patientName: 'María García', patientEmail: 'maria.garcia@gmail.com', service: 'Acupuntura', ...fd(0, 9, 0), status: 'confirmed' },
-  { id: 'apt-2', patientId: 6, patientName: 'Laura Martínez', patientEmail: 'laura.m@gmail.com', service: 'Sueroterapia dirigida', ...fd(0, 10, 30), status: 'confirmed' },
-  { id: 'apt-3', patientId: 7, patientName: 'Roberto Sánchez', patientEmail: 'r.sanchez@gmail.com', service: 'Ozonoterapia', ...fd(0, 12, 0), status: 'pending' },
-  { id: 'apt-4', patientId: 1, patientName: 'Paciente Prueba', patientEmail: 'prueba@ecosalud.com', service: 'Biopuntura', ...fd(1, 9, 30), status: 'pending' },
-  { id: 'apt-5', patientId: 4, patientName: 'María García', patientEmail: 'maria.garcia@gmail.com', service: 'Terapia Neural', ...fd(1, 11, 0), status: 'pending' },
-  { id: 'apt-6', patientId: 6, patientName: 'Laura Martínez', patientEmail: 'laura.m@gmail.com', service: 'Homeopatía', ...fd(2, 10, 0), status: 'confirmed' },
-  { id: 'apt-7', patientId: 7, patientName: 'Roberto Sánchez', patientEmail: 'r.sanchez@gmail.com', service: 'Oxivenaciones', ...fd(3, 14, 0), status: 'pending' },
-  { id: 'apt-8', patientId: 1, patientName: 'Paciente Prueba', patientEmail: 'prueba@ecosalud.com', service: 'Farmacología Vegetal', ...fd(-1, 9, 0), status: 'completed' },
-  { id: 'apt-9', patientId: 4, patientName: 'María García', patientEmail: 'maria.garcia@gmail.com', service: 'Acupuntura', ...fd(-2, 11, 0), status: 'completed' },
-  { id: 'apt-10', patientId: 5, patientName: 'Carlos López', patientEmail: 'carlos.lopez@gmail.com', service: 'Ozonoterapia', ...fd(-3, 10, 0), status: 'cancelled', notes: 'Paciente canceló por enfermedad' },
-];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function therapyPlanFromApi(p: any): TherapyPlanData {
+  return {
+    id: String(p.id),
+    patientId: p.patientId ?? 0,
+    patientName: p.patientName ?? '',
+    patientEmail: p.patientEmail ?? '',
+    service: p.serviceName ?? '',
+    sessionsTotal: p.totalSessions ?? 0,
+    sessionsCompleted: p.completedSessions ?? 0,
+    startDate: p.startDate ?? '',
+    status: PLAN_STATUS_FROM_API[p.status] ?? 'active',
+    notes: p.notes ?? undefined,
+  };
+}
 
-const tp = (daysOffset: number) => {
-  const d2 = new Date(today); d2.setDate(today.getDate() + daysOffset);
-  return d2.toISOString().slice(0, 10);
-};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function therapyPlanToApi(data: Partial<TherapyPlanData> & { patientId?: number; patientName?: string; patientEmail?: string; service?: string; sessionsTotal?: number; startDate?: string }) {
+  return {
+    patientId: data.patientId,
+    patientName: data.patientName,
+    patientEmail: data.patientEmail,
+    serviceName: data.service,
+    totalSessions: data.sessionsTotal,
+    completedSessions: data.sessionsCompleted ?? 0,
+    startDate: data.startDate,
+    status: data.status ? PLAN_STATUS_TO_API[data.status] : undefined,
+    notes: data.notes,
+  };
+}
 
-const INITIAL_THERAPY_PLANS: TherapyPlanData[] = [
-  { id: 'plan-1', patientId: 4, patientName: 'María García',    patientEmail: 'maria.garcia@gmail.com', service: 'Ozonoterapia',         sessionsTotal: 5,  sessionsCompleted: 3, startDate: tp(-24), status: 'active'    },
-  { id: 'plan-2', patientId: 4, patientName: 'María García',    patientEmail: 'maria.garcia@gmail.com', service: 'Acupuntura',            sessionsTotal: 10, sessionsCompleted: 1, startDate: tp(-14), status: 'active'    },
-  { id: 'plan-3', patientId: 1, patientName: 'Paciente Prueba', patientEmail: 'prueba@ecosalud.com',    service: 'Farmacología Vegetal',  sessionsTotal: 8,  sessionsCompleted: 8, startDate: tp(-90), status: 'completed' },
-  { id: 'plan-4', patientId: 6, patientName: 'Laura Martínez',  patientEmail: 'laura.m@gmail.com',      service: 'Homeopatía',            sessionsTotal: 6,  sessionsCompleted: 6, startDate: tp(-80), status: 'completed' },
-  { id: 'plan-5', patientId: 7, patientName: 'Roberto Sánchez', patientEmail: 'r.sanchez@gmail.com',   service: 'Sueroterapia dirigida', sessionsTotal: 4,  sessionsCompleted: 2, startDate: tp(-10), status: 'active'    },
-];
-
-const INITIAL_USERS: UserData[] = [
-  { id: 2, name: 'Angélica Camacho', email: 'admin@ecosalud.com', role: 'ADMIN', status: 'ACTIVE', joinedAt: '2025-06-01' },
-  { id: 3, name: 'Editor Ecosalud', email: 'editor@ecosalud.com', role: 'EDITOR', status: 'ACTIVE', joinedAt: '2025-09-15' },
-  { id: 1, name: 'Paciente Prueba', email: 'prueba@ecosalud.com', role: 'PATIENT', status: 'ACTIVE', joinedAt: '2026-01-15' },
-  { id: 4, name: 'María García', email: 'maria.garcia@gmail.com', role: 'PATIENT', status: 'ACTIVE', joinedAt: '2026-02-10' },
-  { id: 5, name: 'Carlos López', email: 'carlos.lopez@gmail.com', role: 'PATIENT', status: 'INACTIVE', joinedAt: '2025-11-20' },
-  { id: 6, name: 'Laura Martínez', email: 'laura.m@gmail.com', role: 'PATIENT', status: 'ACTIVE', joinedAt: '2026-03-05' },
-  { id: 7, name: 'Roberto Sánchez', email: 'r.sanchez@gmail.com', role: 'PATIENT', status: 'ACTIVE', joinedAt: '2026-04-18' },
-];
-
-// ── localStorage helpers ───────────────────────────────────────────────────────
+// ── localStorage helpers (solo para media) ────────────────────────────────────
 
 function load<T>(key: string, fallback: T): T {
   try {
@@ -180,229 +278,236 @@ function save<T>(key: string, value: T): void {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* quota */ }
 }
 
-// ── Context ───────────────────────────────────────────────────────────────────
+function uid(): string {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+// ── Context value type ────────────────────────────────────────────────────────
 
 interface AdminDataContextValue {
-  // Services
   services: ServiceData[];
-  updateService: (id: string, patch: Partial<ServiceData>) => void;
+  updateService: (id: string, patch: Partial<ServiceData>) => Promise<void>;
 
-  // Posts
   posts: PostData[];
-  createPost: (post: Omit<PostData, 'id' | 'createdAt' | 'updatedAt'>) => PostData;
-  updatePost: (id: string, patch: Partial<PostData>) => void;
-  deletePost: (id: string) => void;
+  createPost: (post: Omit<PostData, 'id' | 'createdAt' | 'updatedAt'>) => Promise<PostData>;
+  updatePost: (id: string, patch: Partial<PostData>) => Promise<void>;
+  deletePost: (id: string) => Promise<void>;
 
-  // Media
   media: MediaItem[];
   addMedia: (item: Omit<MediaItem, 'id' | 'uploadedAt'>) => MediaItem;
   deleteMedia: (id: string) => void;
 
-  // Users
   users: UserData[];
-  addUser: (data: { name: string; email: string; role: UserData['role'] }) => UserData;
-  updateUserRole: (id: number, role: UserData['role']) => void;
-  toggleUserStatus: (id: number) => void;
+  addUser: (data: { name: string; email: string; role: UserData['role']; password: string }) => Promise<UserData>;
+  updateUserRole: (id: number, role: UserData['role']) => Promise<void>;
+  toggleUserStatus: (id: number) => Promise<void>;
 
-  // Specialist
   specialist: SpecialistData;
-  updateSpecialist: (patch: Partial<SpecialistData>) => void;
+  updateSpecialist: (patch: Partial<SpecialistData>) => Promise<void>;
 
-  // Appointments
   appointments: AppointmentData[];
-  addAppointment: (data: Omit<AppointmentData, 'id'>) => AppointmentData;
-  updateAppointment: (id: string, patch: Partial<AppointmentData>) => void;
+  addAppointment: (data: Omit<AppointmentData, 'id'>) => Promise<AppointmentData>;
+  updateAppointment: (id: string, patch: Partial<AppointmentData>) => Promise<void>;
 
-  // Therapy Plans
   therapyPlans: TherapyPlanData[];
-  addTherapyPlan: (data: Omit<TherapyPlanData, 'id'>) => TherapyPlanData;
-  updateTherapyPlan: (id: string, patch: Partial<TherapyPlanData>) => void;
+  addTherapyPlan: (data: Omit<TherapyPlanData, 'id'>) => Promise<TherapyPlanData>;
+  updateTherapyPlan: (id: string, patch: Partial<TherapyPlanData>) => Promise<void>;
+  deleteTherapyPlan: (id: string) => Promise<void>;
 
-  // Notifications
   getUnreadCount: (userId: number) => number;
   markAllRead: (userId: number) => void;
+
+  loading: boolean;
 }
 
 const AdminDataContext = createContext<AdminDataContextValue | null>(null);
 
 export function AdminDataProvider({ children }: { children: ReactNode }) {
-  const [services, setServices] = useState<ServiceData[]>(() =>
-    load('eco_services', INITIAL_SERVICES),
-  );
-  const [posts, setPosts] = useState<PostData[]>(() =>
-    load('eco_posts', INITIAL_POSTS),
-  );
-  const [media, setMedia] = useState<MediaItem[]>(() =>
-    load('eco_media', [] as MediaItem[]),
-  );
-  const [users, setUsers] = useState<UserData[]>(() =>
-    load('eco_users', INITIAL_USERS),
-  );
-  const [specialist, setSpecialist] = useState<SpecialistData>(() =>
-    load('eco_specialist', INITIAL_SPECIALIST),
-  );
-  const [appointments, setAppointments] = useState<AppointmentData[]>(() =>
-    load('eco_appointments', INITIAL_APPOINTMENTS),
-  );
-  const [therapyPlans, setTherapyPlans] = useState<TherapyPlanData[]>(() =>
-    load('eco_therapy_plans', INITIAL_THERAPY_PLANS),
-  );
+  const [services, setServices] = useState<ServiceData[]>([]);
+  const [posts, setPosts] = useState<PostData[]>([]);
+  const [appointments, setAppointments] = useState<AppointmentData[]>([]);
+  const [specialist, setSpecialist] = useState<SpecialistData>(SPECIALIST_FALLBACK);
+  const [users, setUsers] = useState<UserData[]>([]);
+  const [therapyPlans, setTherapyPlans] = useState<TherapyPlanData[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Persist on every change
-  const persist = useCallback((key: string, value: unknown) => save(key, value), []);
+  // Media sigue en localStorage (no tiene endpoint aún)
+  const [media, setMedia] = useState<MediaItem[]>(() => load('eco_media', [] as MediaItem[]));
 
-  // ── Services ────────────────────────────────────────────────────────────────
-  const updateService = useCallback((id: string, patch: Partial<ServiceData>) => {
-    setServices((prev) => {
-      const next = prev.map((s) => s.id === id ? { ...s, ...patch } : s);
-      persist('eco_services', next);
-      return next;
-    });
-  }, [persist]);
+  // ── Carga inicial desde API ──────────────────────────────────────────────────
+  useEffect(() => {
+    const fetchAll = async () => {
+      setLoading(true);
+      try {
+        const [svcRes, postRes, aptRes, specRes, usrRes, planRes] = await Promise.allSettled([
+          axiosClient.get('/services'),
+          axiosClient.get('/posts'),
+          axiosClient.get('/appointments'),
+          axiosClient.get('/specialist'),
+          axiosClient.get('/user'),
+          axiosClient.get('/therapy-plans'),
+        ]);
 
-  // ── Posts ───────────────────────────────────────────────────────────────────
-  const createPost = useCallback((data: Omit<PostData, 'id' | 'createdAt' | 'updatedAt'>): PostData => {
-    const now2 = new Date().toISOString();
-    const post: PostData = { ...data, id: uid(), createdAt: now2, updatedAt: now2 };
-    setPosts((prev) => {
-      const next = [post, ...prev];
-      persist('eco_posts', next);
-      return next;
-    });
-    return post;
-  }, [persist]);
+        if (svcRes.status === 'fulfilled') setServices(svcRes.value.data.map(serviceFromApi));
+        if (postRes.status === 'fulfilled') setPosts(postRes.value.data.map(postFromApi));
+        if (aptRes.status === 'fulfilled') setAppointments(aptRes.value.data.map(appointmentFromApi));
+        if (specRes.status === 'fulfilled' && specRes.value.data) setSpecialist(specialistFromApi(specRes.value.data));
+        if (usrRes.status === 'fulfilled') setUsers(usrRes.value.data.map(userFromApi));
+        if (planRes.status === 'fulfilled') setTherapyPlans(planRes.value.data.map(therapyPlanFromApi));
+      } catch (e) {
+        console.warn('[AdminDataContext] Error cargando datos desde API:', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAll();
+  }, []);
 
-  const updatePost = useCallback((id: string, patch: Partial<PostData>) => {
-    setPosts((prev) => {
-      const next = prev.map((p) => {
-        if (p.id !== id) return p;
-        const updated = { ...p, ...patch, updatedAt: new Date().toISOString() };
-        if (patch.status === 'published' && !p.publishedAt) {
-          updated.publishedAt = updated.updatedAt;
-        }
-        return updated;
+  // ── Services ─────────────────────────────────────────────────────────────────
+  const updateService = useCallback(async (id: string, patch: Partial<ServiceData>) => {
+    const { data } = await axiosClient.put(`/services/${id}`, serviceToApi(patch));
+    setServices(prev => prev.map(s => s.id === id ? serviceFromApi(data) : s));
+  }, []);
+
+  // ── Posts ─────────────────────────────────────────────────────────────────────
+  const createPost = useCallback(async (postData: Omit<PostData, 'id' | 'createdAt' | 'updatedAt'>): Promise<PostData> => {
+    const { data } = await axiosClient.post('/posts', postToApi(postData));
+    const newPost = postFromApi(data);
+    setPosts(prev => [newPost, ...prev]);
+    return newPost;
+  }, []);
+
+  const updatePost = useCallback(async (id: string, patch: Partial<PostData>) => {
+    const { data } = await axiosClient.put(`/posts/${id}`, postToApi(patch));
+    setPosts(prev => prev.map(p => p.id === id ? postFromApi(data) : p));
+  }, []);
+
+  const deletePost = useCallback(async (id: string) => {
+    await axiosClient.delete(`/posts/${id}`);
+    setPosts(prev => prev.filter(p => p.id !== id));
+  }, []);
+
+  // ── Specialist ────────────────────────────────────────────────────────────────
+  const updateSpecialist = useCallback(async (patch: Partial<SpecialistData>) => {
+    const apiPatch: Record<string, unknown> = {};
+    if (patch.name !== undefined) apiPatch.name = patch.name;
+    if (patch.badge !== undefined) apiPatch.badge = patch.badge;
+    if (patch.specialty !== undefined) apiPatch.specialty = patch.specialty;
+    if (patch.university !== undefined) apiPatch.university = patch.university;
+    if (patch.bio !== undefined) apiPatch.bio = patch.bio;
+    if (patch.photoBase64 !== undefined) apiPatch.photoUrl = patch.photoBase64;
+    if (patch.credential1 !== undefined || patch.credential2 !== undefined) {
+      const c1 = patch.credential1 ?? specialist.credential1;
+      const c2 = patch.credential2 ?? specialist.credential2;
+      apiPatch.registrationNumber = `${c1}|${c2}`;
+    }
+    const { data } = await axiosClient.put('/specialist', apiPatch);
+    setSpecialist(specialistFromApi(data));
+  }, [specialist]);
+
+  // ── Appointments ──────────────────────────────────────────────────────────────
+  const addAppointment = useCallback(async (apt: Omit<AppointmentData, 'id'>): Promise<AppointmentData> => {
+    const payload = {
+      patientId: apt.patientId,
+      patientName: apt.patientName,
+      patientEmail: apt.patientEmail,
+      serviceName: apt.service,
+      appointmentDate: apt.date,
+      appointmentTime: apt.time,
+      status: appointmentStatusToApi(apt.status),
+      notes: apt.notes,
+    };
+    const { data } = await axiosClient.post('/appointments', payload);
+    const newApt = appointmentFromApi(data);
+    setAppointments(prev => [newApt, ...prev]);
+    return newApt;
+  }, []);
+
+  const updateAppointment = useCallback(async (id: string, patch: Partial<AppointmentData>) => {
+    if (patch.status !== undefined) {
+      const { data } = await axiosClient.patch(`/appointments/${id}/status`, {
+        status: appointmentStatusToApi(patch.status),
+        cancellationReason: patch.notes,
       });
-      persist('eco_posts', next);
-      return next;
-    });
-  }, [persist]);
+      setAppointments(prev => prev.map(a => a.id === id ? appointmentFromApi(data) : a));
+    }
+  }, []);
 
-  const deletePost = useCallback((id: string) => {
-    setPosts((prev) => {
-      const next = prev.filter((p) => p.id !== id);
-      persist('eco_posts', next);
-      return next;
-    });
-  }, [persist]);
-
-  // ── Media ───────────────────────────────────────────────────────────────────
+  // ── Media (localStorage) ──────────────────────────────────────────────────────
   const addMedia = useCallback((item: Omit<MediaItem, 'id' | 'uploadedAt'>): MediaItem => {
     const newItem: MediaItem = { ...item, id: uid(), uploadedAt: new Date().toISOString() };
-    setMedia((prev) => {
-      const next = [newItem, ...prev];
-      persist('eco_media', next);
-      return next;
-    });
+    setMedia(prev => { const next = [newItem, ...prev]; save('eco_media', next); return next; });
     return newItem;
-  }, [persist]);
+  }, []);
 
   const deleteMedia = useCallback((id: string) => {
-    setMedia((prev) => {
-      const next = prev.filter((m) => m.id !== id);
-      persist('eco_media', next);
-      return next;
-    });
-  }, [persist]);
+    setMedia(prev => { const next = prev.filter(m => m.id !== id); save('eco_media', next); return next; });
+  }, []);
 
-  // ── Users ───────────────────────────────────────────────────────────────────
-  const addUser = useCallback((data: { name: string; email: string; role: UserData['role'] }): UserData => {
-    const newUser: UserData = {
-      id: Date.now(),
-      name: data.name,
-      email: data.email,
-      role: data.role,
-      status: 'ACTIVE',
-      joinedAt: new Date().toISOString(),
-    };
-    setUsers((prev) => {
-      const next = [...prev, newUser];
-      persist('eco_users', next);
-      return next;
+  // ── Users (API) ───────────────────────────────────────────────────────────────
+  const addUser = useCallback(async (d: { name: string; email: string; role: UserData['role']; password: string }): Promise<UserData> => {
+    const { data } = await axiosClient.post('/user/register', {
+      name: d.name,
+      email: d.email,
+      password: d.password,
+      role: ROLE_TO_API[d.role],
+      status: 'ACTIVO',
     });
-    return newUser;
-  }, [persist]);
+    const u = userFromApi(data);
+    setUsers(prev => [...prev, u]);
+    return u;
+  }, []);
 
-  const updateUserRole = useCallback((id: number, role: UserData['role']) => {
-    setUsers((prev) => {
-      const next = prev.map((u) => u.id === id ? { ...u, role } : u);
-      persist('eco_users', next);
-      return next;
+  const updateUserRole = useCallback(async (id: number, role: UserData['role']) => {
+    const user = users.find(u => u.id === id);
+    if (!user) return;
+    const { data } = await axiosClient.put(`/user/${id}`, {
+      name: user.name,
+      email: user.email,
+      role: ROLE_TO_API[role],
+      status: STATUS_TO_API[user.status],
     });
-  }, [persist]);
+    setUsers(prev => prev.map(u => u.id === id ? userFromApi(data) : u));
+  }, [users]);
 
-  const toggleUserStatus = useCallback((id: number) => {
-    setUsers((prev) => {
-      const next = prev.map((u) =>
-        u.id === id ? { ...u, status: (u.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE') as 'ACTIVE' | 'INACTIVE' } : u,
-      );
-      persist('eco_users', next);
-      return next;
+  const toggleUserStatus = useCallback(async (id: number) => {
+    const user = users.find(u => u.id === id);
+    if (!user) return;
+    const newStatus: UserData['status'] = user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+    const { data } = await axiosClient.put(`/user/${id}`, {
+      name: user.name,
+      email: user.email,
+      role: ROLE_TO_API[user.role],
+      status: STATUS_TO_API[newStatus],
     });
-  }, [persist]);
+    setUsers(prev => prev.map(u => u.id === id ? userFromApi(data) : u));
+  }, [users]);
 
-  // ── Specialist ──────────────────────────────────────────────────────────────
-  const updateSpecialist = useCallback((patch: Partial<SpecialistData>) => {
-    setSpecialist((prev) => {
-      const next = { ...prev, ...patch };
-      persist('eco_specialist', next);
-      return next;
-    });
-  }, [persist]);
+  // ── Therapy Plans (API) ───────────────────────────────────────────────────────
+  const addTherapyPlan = useCallback(async (d: Omit<TherapyPlanData, 'id'>): Promise<TherapyPlanData> => {
+    const { data } = await axiosClient.post('/therapy-plans', therapyPlanToApi(d));
+    const p = therapyPlanFromApi(data);
+    setTherapyPlans(prev => [p, ...prev]);
+    return p;
+  }, []);
 
-  // ── Appointments ─────────────────────────────────────────────────────────────
-  const addAppointment = useCallback((data: Omit<AppointmentData, 'id'>): AppointmentData => {
-    const newApt: AppointmentData = { ...data, id: `apt-${uid()}` };
-    setAppointments((prev) => {
-      const next = [newApt, ...prev];
-      persist('eco_appointments', next);
-      return next;
-    });
-    return newApt;
-  }, [persist]);
+  const updateTherapyPlan = useCallback(async (id: string, patch: Partial<TherapyPlanData>) => {
+    const existing = therapyPlans.find(p => p.id === id);
+    if (!existing) return;
+    const merged = { ...existing, ...patch };
+    const { data } = await axiosClient.put(`/therapy-plans/${id}`, therapyPlanToApi(merged));
+    setTherapyPlans(prev => prev.map(p => p.id === id ? therapyPlanFromApi(data) : p));
+  }, [therapyPlans]);
 
-  const updateAppointment = useCallback((id: string, patch: Partial<AppointmentData>) => {
-    setAppointments((prev) => {
-      const next = prev.map((a) => a.id === id ? { ...a, ...patch } : a);
-      persist('eco_appointments', next);
-      return next;
-    });
-  }, [persist]);
+  const deleteTherapyPlan = useCallback(async (id: string) => {
+    await axiosClient.delete(`/therapy-plans/${id}`);
+    setTherapyPlans(prev => prev.filter(p => p.id !== id));
+  }, []);
 
-  // ── Therapy Plans ─────────────────────────────────────────────────────────────
-  const addTherapyPlan = useCallback((data: Omit<TherapyPlanData, 'id'>): TherapyPlanData => {
-    const plan: TherapyPlanData = { ...data, id: `plan-${uid()}` };
-    setTherapyPlans((prev) => {
-      const next = [plan, ...prev];
-      persist('eco_therapy_plans', next);
-      return next;
-    });
-    return plan;
-  }, [persist]);
-
-  const updateTherapyPlan = useCallback((id: string, patch: Partial<TherapyPlanData>) => {
-    setTherapyPlans((prev) => {
-      const next = prev.map((p) => p.id === id ? { ...p, ...patch } : p);
-      persist('eco_therapy_plans', next);
-      return next;
-    });
-  }, [persist]);
-
-  // ── Notifications ────────────────────────────────────────────────────────────
+  // ── Notifications ─────────────────────────────────────────────────────────────
   const getUnreadCount = useCallback((userId: number): number => {
     const lastVisit = localStorage.getItem(`eco_pub_visit_${userId}`) ?? '1970-01-01';
-    return posts.filter(
-      (p) => p.status === 'published' && p.publishedAt && p.publishedAt > lastVisit,
-    ).length;
+    return posts.filter(p => p.status === 'published' && p.publishedAt && p.publishedAt > lastVisit).length;
   }, [posts]);
 
   const markAllRead = useCallback((userId: number) => {
@@ -411,7 +516,17 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
 
   return (
     <AdminDataContext.Provider
-      value={{ services, updateService, posts, createPost, updatePost, deletePost, media, addMedia, deleteMedia, users, addUser, updateUserRole, toggleUserStatus, specialist, updateSpecialist, appointments, addAppointment, updateAppointment, therapyPlans, addTherapyPlan, updateTherapyPlan, getUnreadCount, markAllRead }}
+      value={{
+        services, updateService,
+        posts, createPost, updatePost, deletePost,
+        media, addMedia, deleteMedia,
+        users, addUser, updateUserRole, toggleUserStatus,
+        specialist, updateSpecialist,
+        appointments, addAppointment, updateAppointment,
+        therapyPlans, addTherapyPlan, updateTherapyPlan, deleteTherapyPlan,
+        getUnreadCount, markAllRead,
+        loading,
+      }}
     >
       {children}
     </AdminDataContext.Provider>

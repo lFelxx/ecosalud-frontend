@@ -24,7 +24,7 @@ export default function Footer() {
           Ecosalud
         </Typography>
         <Typography variant="caption" color="text.secondary">
-          © 2026 Ecosalud. Bogotá, Colombia. Specialist Angélica Camacho.
+          © 2026 Ecosalud. Bogotá, Colombia. Especialista Dra. Angélica Camacho.
         </Typography>
       </Box>
 

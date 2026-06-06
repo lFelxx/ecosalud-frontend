@@ -7,13 +7,10 @@ export class RegisterUseCase {
     this.authRepository = authRepository;
   }
 
-  async execute(data: RegisterData): Promise<AuthResponse> {
-    if (!data.name || !data.email || !data.password) {
-      throw new Error('Nombre, correo y contraseña son requeridos.');
+  async execute(data: Omit<RegisterData, 'password'>): Promise<AuthResponse> {
+    if (!data.name || !data.email) {
+      throw new Error('Nombre y correo son requeridos.');
     }
-    if (data.password.length < 6) {
-      throw new Error('La contraseña debe tener al menos 6 caracteres.');
-    }
-    return this.authRepository.register(data);
+    return this.authRepository.register(data as RegisterData);
   }
 }

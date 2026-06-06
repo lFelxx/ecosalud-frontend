@@ -103,13 +103,18 @@ export default function AdminUsersPage() {
     return true;
   };
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!validate()) return;
-    addUser({ name: form.name.trim(), email: form.email.trim(), role: form.role });
-    if (form.sendEmail) {
-      sendCredentialsMail(form.name.trim(), form.email.trim(), form.password, form.role);
+    try {
+      await addUser({ name: form.name.trim(), email: form.email.trim(), role: form.role, password: form.password });
+      if (form.sendEmail) {
+        sendCredentialsMail(form.name.trim(), form.email.trim(), form.password, form.role);
+      }
+      setCreated(true);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'No se pudo crear el usuario';
+      setEmailError(msg);
     }
-    setCreated(true);
   };
 
   return (

@@ -6,6 +6,8 @@ import { useAuthContext } from '../context/AuthContext';
 import LandingPage from '../pages/home/LandingPage';
 import HomePage from '../pages/home/HomePage';
 import PricingPage from '../pages/home/PricingPage';
+import OnboardingPage from '../pages/home/OnboardingPage';
+import SuperAdminPage from '../pages/superadmin/SuperAdminPage';
 import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
 import DashboardPage from '../pages/dashboard/DashboardPage';
@@ -41,6 +43,13 @@ function AdminRoute({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
+function SuperAdminRoute({ children }: { children: ReactNode }) {
+  const { isAuthenticated, user } = useAuthContext();
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (user?.role !== 'ADMIN' || user?.tenantSchema) return <Navigate to="/" replace />;
+  return <>{children}</>;
+}
+
 function HomeRoute() {
   const { isAuthenticated } = useAuthContext();
   return isAuthenticated ? <HomePage /> : <LandingPage />;
@@ -58,6 +67,7 @@ export default function AppRouter() {
 
         {/* Páginas públicas */}
         <Route path="/precios" element={<PricingPage />} />
+        <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/especialista" element={<SpecialistProfilePage />} />
@@ -69,6 +79,9 @@ export default function AppRouter() {
         <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
         <Route path="/appointments" element={<PrivateRoute><AppointmentsPage /></PrivateRoute>} />
         <Route path="/appointments/book" element={<PrivateRoute><BookAppointmentPage /></PrivateRoute>} />
+
+        {/* Panel Super-Admin */}
+        <Route path="/superadmin" element={<SuperAdminRoute><SuperAdminPage /></SuperAdminRoute>} />
 
         {/* Panel Admin / Editor — layout con Outlet */}
         <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>

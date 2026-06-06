@@ -17,6 +17,12 @@ import { useAuthContext } from '../../context/AuthContext';
 
 const SIDEBAR_W = 240;
 
+function schemaToClinicName(schema?: string | null): string {
+  if (!schema) return 'Ecosalud Market';
+  return schema.replace('tenant_', '').split('_')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+}
+
 const ALL_NAV = [
   { label: 'Dashboard',     icon: <DashboardOutlinedIcon />,       to: '/admin',              exact: true,  adminOnly: false },
   { label: 'Publicaciones', icon: <ArticleOutlinedIcon />,         to: '/admin/posts',        exact: false, adminOnly: false },
@@ -50,14 +56,27 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         py: 2,
       }}
     >
-      {/* Logo */}
+      {/* Logo + nombre de clínica */}
       <Box sx={{ px: 2.5, mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
           <SpaOutlinedIcon sx={{ color: '#3DAA96', fontSize: 22 }} />
           <Typography sx={{ color: '#fff', fontWeight: 800, fontSize: '0.95rem' }}>
-            Ecosalud Admin
+            Ecosalud
           </Typography>
         </Box>
+        <Typography
+          sx={{
+            color: 'rgba(255,255,255,0.85)',
+            fontSize: '0.78rem',
+            fontWeight: 600,
+            mb: 0.75,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
+        >
+          {schemaToClinicName(user?.tenantSchema)}
+        </Typography>
         <Box
           sx={{
             display: 'inline-flex',

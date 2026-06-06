@@ -25,10 +25,9 @@ export function useRegister() {
       const response = await registerUseCase.execute({
         name: `${data.name} ${data.lastName}`.trim(),
         email: data.email,
-        password: 'temporal123',
       });
       login(response.token, response.user);
-      navigate('/dashboard');
+      navigate('/');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Error al crear la cuenta.';
       setError(message);

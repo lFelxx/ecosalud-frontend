@@ -387,8 +387,8 @@ function BookDialog({
   services: { id: string; name: string }[];
   users: UserData[];
   specialist: { name: string };
-  addAppointment: (data: Omit<AppointmentData, 'id'>) => AppointmentData;
-  addUser: (data: { name: string; email: string; role: UserData['role'] }) => UserData;
+  addAppointment: (data: Omit<AppointmentData, 'id'>) => Promise<AppointmentData>;
+  addUser: (data: { name: string; email: string; role: UserData['role']; password: string }) => Promise<UserData>;
 }) {
   const [s, setS] = useState<BookState>(INIT_BOOK);
   const patch = (p: Partial<BookState>) => setS((prev) => ({ ...prev, ...p }));
@@ -399,10 +399,10 @@ function BookDialog({
 
   const handleSelectUser = (u: UserData) => patch({ selectedUser: u, step: 'appointment' });
 
-  const handleCreatePatient = () => {
+  const handleCreatePatient = async () => {
     if (!s.newName.trim() || !s.newEmail.trim()) return;
     const pwd = generatePassword();
-    const newUser = addUser({ name: s.newName.trim(), email: s.newEmail.trim(), role: 'PATIENT' });
+    const newUser = await addUser({ name: s.newName.trim(), email: s.newEmail.trim(), role: 'PATIENT', password: pwd });
     patch({ selectedUser: newUser, isNew: true, generatedPwd: pwd, step: 'appointment' });
   };
 
@@ -708,23 +708,24 @@ function TherapyPlanDialog({
   onClose: () => void;
   services: { id: string; name: string }[];
   users: UserData[];
-  addTherapyPlan: (data: Omit<TherapyPlanData, 'id'>) => TherapyPlanData;
-  addUser: (data: { name: string; email: string; role: UserData['role'] }) => UserData;
+  addTherapyPlan: (data: Omit<TherapyPlanData, 'id'>) => Promise<TherapyPlanData>;
+  addUser: (data: { name: string; email: string; role: UserData['role']; password: string }) => Promise<UserData>;
 }) {
   const [s, setS] = useState<PlanState>(INIT_PLAN);
   const patch = (p: Partial<PlanState>) => setS((prev) => ({ ...prev, ...p }));
 
   const handleClose = () => { setS(INIT_PLAN); onClose(); };
 
-  const handleCreatePatient = () => {
+  const handleCreatePatient = async () => {
     if (!s.newName.trim() || !s.newEmail.trim()) return;
-    const newUser = addUser({ name: s.newName.trim(), email: s.newEmail.trim(), role: 'PATIENT' });
+    const pwd = generatePassword();
+    const newUser = await addUser({ name: s.newName.trim(), email: s.newEmail.trim(), role: 'PATIENT', password: pwd });
     patch({ selectedUser: newUser, step: 'plan' });
   };
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!s.selectedUser || !s.service || !s.startDate) return;
-    addTherapyPlan({
+    await addTherapyPlan({
       patientId:         s.selectedUser.id,
       patientName:       s.selectedUser.name,
       patientEmail:      s.selectedUser.email,

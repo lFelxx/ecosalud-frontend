@@ -328,7 +328,7 @@ export default function PricingPage() {
                     {/* CTA */}
                     <Button
                       component={RouterLink}
-                      to="/register"
+                      to={plan.id === 'enterprise' ? '/register' : `/onboarding?plan=${plan.id.toUpperCase()}`}
                       variant="contained"
                       fullWidth
                       disableElevation
