@@ -24,6 +24,11 @@ export default defineConfig({
     // Patrón de archivos de test
     include: ['src/__tests__/**/*.test.{ts,tsx}'],
 
+    // Aísla completamente cada archivo de test en su propio proceso Node.js.
+    // Esto evita que mocks o singletons de módulos (como axiosClient) de un
+    // archivo contaminen a otros cuando Vitest reutiliza workers.
+    pool: 'forks',
+
     // Trata archivos de imagen como assets (devuelve la URL como string)
     assetsInclude: ['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.svg', '**/*.webp'],
 
