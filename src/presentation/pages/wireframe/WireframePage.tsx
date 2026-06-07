@@ -348,7 +348,7 @@ export default function WireframePage() {
       <Section alt py={44}>
         <SectionLabel text="Barra de Beneficios" />
         <Box sx={{ display: 'flex', gap: 4 }}>
-          {['Atención Certificada', 'Agenda Flexible', 'Enfoque Integral'].map((label, i) => (
+          {['Atención Certificada', 'Agenda Flexible', 'Enfoque Integral'].map((_, i) => (
             <Box key={i} sx={{ flex: 1, display: 'flex', gap: 2, alignItems: 'flex-start' }}>
               {/* Ícono */}
               <Box
@@ -536,8 +536,8 @@ export default function WireframePage() {
       <Section py={52}>
         <SectionLabel text="CTA — Llamada a la Acción" />
         <Box sx={{ maxWidth: 520, mx: 'auto', textAlign: 'center' }}>
-          <Bar w="75%" h={22} color={W.barDark} sx={{ mx: 'auto' }} />
-          <Bar w="55%" h={22} color={W.barDark} mt={10} sx={{ mx: 'auto' }} />
+          <Bar w="75%" h={22} color={W.barDark} />
+          <Bar w="55%" h={22} color={W.barDark} mt={10} />
           <Bar w="90%" h={11} mt={18} />
           <Bar w="80%" h={11} mt={6} />
           <Bar w="65%" h={11} mt={6} />
@@ -633,7 +633,7 @@ export default function WireframePage() {
             </Box>
 
             {/* Columnas de links */}
-            {['Servicios', 'Empresa', 'Legal'].map((col, ci) => (
+            {['Servicios', 'Empresa', 'Legal'].map((_, ci) => (
               <Box key={ci} sx={{ flex: 1 }}>
                 <Bar w="55%" h={13} color={W.barDark} />
                 {[1, 2, 3, 4].map((row) => (
