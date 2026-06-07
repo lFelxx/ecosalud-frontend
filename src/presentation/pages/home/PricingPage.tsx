@@ -10,7 +10,7 @@ import SpaIcon from '@mui/icons-material/Spa';
 import StarIcon from '@mui/icons-material/Star';
 import RocketLaunchOutlinedIcon from '@mui/icons-material/RocketLaunchOutlined';
 import BusinessCenterOutlinedIcon from '@mui/icons-material/BusinessCenterOutlined';
-import Navbar from '../../components/common/Navbar';
+import PlatformNavbar from '../../components/common/PlatformNavbar';
 import Footer from '../../components/common/Footer';
 
 // ── Datos de planes ───────────────────────────────────────────────────────────
@@ -176,7 +176,7 @@ export default function PricingPage() {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#F7FAF9' }}>
-      <Navbar />
+      <PlatformNavbar />
 
       {/* ── Hero ───────────────────────────────────────────────────────────── */}
       <Box

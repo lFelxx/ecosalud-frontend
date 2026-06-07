@@ -11,6 +11,7 @@ import Navbar from '../../components/common/Navbar';
 import Footer from '../../components/common/Footer';
 import { useAdminData } from '../../context/AdminDataContext';
 import { useAuthContext } from '../../context/AuthContext';
+import { useSeo } from '../../hooks/useSeo';
 
 export default function PublicationDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -18,6 +19,11 @@ export default function PublicationDetailPage() {
   const { user } = useAuthContext();
 
   const post = posts.find((p) => p.id === id);
+
+  useSeo(
+    post ? `${post.title} — Ecosalud` : 'Publicación — Ecosalud',
+    post?.excerpt || post?.content?.substring(0, 155) || undefined,
+  );
 
   // Si no existe o es borrador (sin permisos), redirigir
   if (!post) return <Navigate to="/publications" replace />;

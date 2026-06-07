@@ -25,6 +25,7 @@ import ServiceDetailModal from './ServiceDetailModal';
 import type { ServiceDetail } from './ServiceDetailModal';
 import { useAdminData } from '../../context/AdminDataContext';
 import type { ServiceData } from '../../context/AdminDataContext';
+import { useSeo } from '../../hooks/useSeo';
 
 const FILTERS = ['Todas', 'Desintoxicación', 'Energía', 'Inmunidad', 'Dolor Crónico'];
 
@@ -105,8 +106,15 @@ function ServiceImage({ src, icon }: { src: string; icon: ReactNode }) {
 }
 
 export default function ServicesPage() {
-  const { services } = useAdminData();
+  const { services, specialist } = useAdminData();
   const [activeFilter, setActiveFilter] = useState('Todas');
+
+  useSeo(
+    `Servicios | ${specialist.name} — Ecosalud`,
+    services.length > 0
+      ? `Descubre nuestros ${services.length} servicios especializados: ${services.slice(0, 3).map(s => s.name).join(', ')} y más.`
+      : `Terapias especializadas de ${specialist.specialty}. Agenda tu cita en línea con ${specialist.name}.`,
+  );
   const [selectedService, setSelectedService] = useState<ServiceDetail | null>(null);
 
   // Se recalcula solo cuando el array de servicios cambia en el contexto

@@ -8,6 +8,15 @@ import HomePage from '../pages/home/HomePage';
 import PricingPage from '../pages/home/PricingPage';
 import OnboardingPage from '../pages/home/OnboardingPage';
 import SuperAdminPage from '../pages/superadmin/SuperAdminPage';
+import SuperAdminNewClinicPage from '../pages/superadmin/SuperAdminNewClinicPage';
+import SuperAdminRevenuePage from '../pages/superadmin/SuperAdminRevenuePage';
+import SuperAdminBlogPage     from '../pages/superadmin/SuperAdminBlogPage';
+import SuperAdminSettingsPage from '../pages/superadmin/SuperAdminSettingsPage';
+import NovedadesPage          from '../pages/home/NovedadesPage';
+import FuncionalidadesPage    from '../pages/home/FuncionalidadesPage';
+import PrivacyPage            from '../pages/legal/PrivacyPage';
+import TermsPage              from '../pages/legal/TermsPage';
+import ContactPage            from '../pages/legal/ContactPage';
 import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
 import DashboardPage from '../pages/dashboard/DashboardPage';
@@ -28,6 +37,15 @@ import AdminUsersPage from '../pages/admin/users/AdminUsersPage';
 import AdminSpecialistPage from '../pages/admin/specialist/AdminSpecialistPage';
 import SpecialistProfilePage from '../pages/specialist/SpecialistProfilePage';
 import AdminAppointmentsPage from '../pages/admin/appointments/AdminAppointmentsPage';
+import AdminHealthRecordsPage from '../pages/admin/healthrecords/AdminHealthRecordsPage';
+import AdminReportsPage from '../pages/admin/reports/AdminReportsPage';
+import AdminTherapyPlansPage from '../pages/admin/therapyplans/AdminTherapyPlansPage';
+import AdminConsentsPage from '../pages/admin/consents/AdminConsentsPage';
+import AdminBillingPage from '../pages/admin/billing/AdminBillingPage';
+import AdminNotificationsPage from '../pages/admin/notifications/AdminNotificationsPage';
+import PatientProfilePage from '../pages/profile/PatientProfilePage';
+import PatientConsentPage from '../pages/consents/PatientConsentPage';
+import BillingResultPage from '../pages/billing/BillingResultPage';
 
 // ── Guards ───────────────────────────────────────────────────────────────────
 
@@ -66,8 +84,14 @@ export default function AppRouter() {
         <Route path="/" element={<HomeRoute />} />
 
         {/* Páginas públicas */}
-        <Route path="/precios" element={<PricingPage />} />
-        <Route path="/onboarding" element={<OnboardingPage />} />
+        <Route path="/precios"          element={<PricingPage />} />
+        <Route path="/onboarding"       element={<OnboardingPage />} />
+        <Route path="/funcionalidades"  element={<FuncionalidadesPage />} />
+        <Route path="/novedades"        element={<NovedadesPage />} />
+        <Route path="/novedades/:id"    element={<NovedadesPage />} />
+        <Route path="/privacidad"       element={<PrivacyPage />} />
+        <Route path="/terminos"         element={<TermsPage />} />
+        <Route path="/contacto"         element={<ContactPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/especialista" element={<SpecialistProfilePage />} />
@@ -77,11 +101,18 @@ export default function AppRouter() {
 
         {/* Páginas privadas */}
         <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
+        <Route path="/profile"   element={<PrivateRoute><PatientProfilePage /></PrivateRoute>} />
+        <Route path="/consents"       element={<PrivateRoute><PatientConsentPage /></PrivateRoute>} />
+        <Route path="/billing/result" element={<BillingResultPage />} />
         <Route path="/appointments" element={<PrivateRoute><AppointmentsPage /></PrivateRoute>} />
         <Route path="/appointments/book" element={<PrivateRoute><BookAppointmentPage /></PrivateRoute>} />
 
         {/* Panel Super-Admin */}
         <Route path="/superadmin" element={<SuperAdminRoute><SuperAdminPage /></SuperAdminRoute>} />
+        <Route path="/superadmin/new-clinic" element={<SuperAdminRoute><SuperAdminNewClinicPage /></SuperAdminRoute>} />
+        <Route path="/superadmin/revenue" element={<SuperAdminRoute><SuperAdminRevenuePage /></SuperAdminRoute>} />
+        <Route path="/superadmin/blog"     element={<SuperAdminRoute><SuperAdminBlogPage /></SuperAdminRoute>} />
+        <Route path="/superadmin/settings" element={<SuperAdminRoute><SuperAdminSettingsPage /></SuperAdminRoute>} />
 
         {/* Panel Admin / Editor — layout con Outlet */}
         <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
@@ -94,6 +125,12 @@ export default function AppRouter() {
           <Route path="users" element={<AdminUsersPage />} />
           <Route path="specialist" element={<AdminSpecialistPage />} />
           <Route path="appointments" element={<AdminAppointmentsPage />} />
+          <Route path="health-records" element={<AdminHealthRecordsPage />} />
+          <Route path="reports" element={<AdminReportsPage />} />
+          <Route path="therapy-plans" element={<AdminTherapyPlansPage />} />
+          <Route path="consents" element={<AdminConsentsPage />} />
+          <Route path="notifications" element={<AdminNotificationsPage />} />
+          <Route path="billing" element={<AdminBillingPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

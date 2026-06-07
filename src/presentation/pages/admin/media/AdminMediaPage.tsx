@@ -26,19 +26,11 @@ export default function AdminMediaPage() {
     if (!files?.length) return;
     setUploading(true);
     for (const file of Array.from(files)) {
-      await new Promise<void>((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          addMedia({
-            name: file.name,
-            base64: reader.result as string,
-            mimeType: file.type,
-            size: file.size,
-          });
-          resolve();
-        };
-        reader.readAsDataURL(file);
-      });
+      try {
+        await addMedia(file);
+      } catch (err) {
+        console.error('[Media] Error al subir archivo:', err);
+      }
     }
     setUploading(false);
   };
@@ -123,7 +115,7 @@ export default function AdminMediaPage() {
                 <Box sx={{ height: 120, overflow: 'hidden', position: 'relative' }}>
                   <Box
                     component="img"
-                    src={item.base64}
+                    src={item.url}
                     alt={item.name}
                     sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
@@ -145,7 +137,7 @@ export default function AdminMediaPage() {
                     <Tooltip title="Vista previa">
                       <IconButton
                         size="small"
-                        onClick={() => setPreview(item.base64)}
+                        onClick={() => setPreview(item.url)}
                         sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: '#fff', '&:hover': { bgcolor: 'rgba(255,255,255,0.30)' } }}
                       >
                         <ZoomInOutlinedIcon sx={{ fontSize: 18 }} />
@@ -225,7 +217,7 @@ export default function AdminMediaPage() {
             <Button
               fullWidth
               variant="contained"
-              onClick={() => { if (confirmDel) deleteMedia(confirmDel); setConfirmDel(null); }}
+              onClick={async () => { if (confirmDel) { await deleteMedia(confirmDel); setConfirmDel(null); } }}
               sx={{ bgcolor: '#C0392B', borderRadius: 2, fontWeight: 700, '&:hover': { bgcolor: '#A93226' } }}
             >
               Eliminar

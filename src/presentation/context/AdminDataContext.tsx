@@ -33,7 +33,8 @@ export interface PostData {
 export interface MediaItem {
   id: string;
   name: string;
-  base64: string;
+  /** URL pública devuelta por el servidor para renderizar la imagen. */
+  url: string;
   mimeType: string;
   size: number;
   uploadedAt: string;
@@ -82,6 +83,38 @@ export interface TherapyPlanData {
   startDate: string;
   status: 'active' | 'paused' | 'completed' | 'cancelled';
   notes?: string;
+}
+
+/**
+ * Historia clínica electrónica — Res. 1995/1999 MinSalud.
+ * Campos obligatorios: reasonForConsultation y diagnosis.
+ */
+export interface HealthRecordData {
+  id: string;
+  patientId: number;
+  patientName: string;
+  appointmentId?: number | null;
+  specialistId?: number | null;
+  /** Motivo de consulta — OBLIGATORIO */
+  reasonForConsultation: string;
+  /** Enfermedad actual / anamnesis */
+  currentIllness?: string;
+  /** Examen físico */
+  physicalExam?: string;
+  /** Diagnóstico — OBLIGATORIO */
+  diagnosis: string;
+  /** Plan de tratamiento */
+  treatmentPlan?: string;
+  /** Observaciones adicionales */
+  observations?: string;
+  /** Próxima cita sugerida (ISO date YYYY-MM-DD) */
+  nextAppointment?: string;
+  /** Historia bloqueada — no puede editarse ni eliminarse (inmutable) */
+  locked: boolean;
+  hashIntegrity?: string;
+  createdBy?: number | null;
+  createdAt: string;
+  updatedAt?: string;
 }
 
 // ── Mappers backend ↔ frontend ────────────────────────────────────────────────
@@ -265,21 +298,58 @@ function therapyPlanToApi(data: Partial<TherapyPlanData> & { patientId?: number;
   };
 }
 
-// ── localStorage helpers (solo para media) ────────────────────────────────────
+// ── Mappers historia clínica backend ↔ frontend ───────────────────────────────
 
-function load<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
-  } catch { return fallback; }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function healthRecordFromApi(r: any): HealthRecordData {
+  return {
+    id: String(r.id),
+    patientId: r.patientId ?? 0,
+    patientName: r.patientName ?? '',
+    appointmentId: r.appointmentId ?? null,
+    specialistId: r.specialistId ?? null,
+    reasonForConsultation: r.reasonForConsultation ?? '',
+    currentIllness: r.currentIllness ?? undefined,
+    physicalExam: r.physicalExam ?? undefined,
+    diagnosis: r.diagnosis ?? '',
+    treatmentPlan: r.treatmentPlan ?? undefined,
+    observations: r.observations ?? undefined,
+    nextAppointment: r.nextAppointment ?? undefined,
+    locked: r.locked ?? false,
+    hashIntegrity: r.hashIntegrity ?? undefined,
+    createdBy: r.createdBy ?? null,
+    createdAt: r.createdAt ?? new Date().toISOString(),
+    updatedAt: r.updatedAt ?? undefined,
+  };
 }
 
-function save<T>(key: string, value: T): void {
-  try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* quota */ }
+function healthRecordToApi(d: Partial<HealthRecordData> & { patientId?: number; reasonForConsultation?: string; diagnosis?: string }) {
+  return {
+    patientId: d.patientId,
+    appointmentId: d.appointmentId ?? null,
+    specialistId: d.specialistId ?? null,
+    reasonForConsultation: d.reasonForConsultation,
+    currentIllness: d.currentIllness,
+    physicalExam: d.physicalExam,
+    diagnosis: d.diagnosis,
+    treatmentPlan: d.treatmentPlan,
+    observations: d.observations,
+    nextAppointment: d.nextAppointment ?? null,
+    createdBy: d.createdBy ?? null,
+  };
 }
 
-function uid(): string {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+// ── Media mapper ──────────────────────────────────────────────────────────────
+
+function mediaFromApi(d: any): MediaItem {
+  return {
+    id: d.id,
+    name: d.name,
+    url: d.url,
+    mimeType: d.mimeType,
+    size: d.size,
+    uploadedAt: d.uploadedAt,
+  };
 }
 
 // ── Context value type ────────────────────────────────────────────────────────
@@ -294,8 +364,8 @@ interface AdminDataContextValue {
   deletePost: (id: string) => Promise<void>;
 
   media: MediaItem[];
-  addMedia: (item: Omit<MediaItem, 'id' | 'uploadedAt'>) => MediaItem;
-  deleteMedia: (id: string) => void;
+  addMedia: (file: File) => Promise<MediaItem>;
+  deleteMedia: (id: string) => Promise<void>;
 
   users: UserData[];
   addUser: (data: { name: string; email: string; role: UserData['role']; password: string }) => Promise<UserData>;
@@ -314,6 +384,12 @@ interface AdminDataContextValue {
   updateTherapyPlan: (id: string, patch: Partial<TherapyPlanData>) => Promise<void>;
   deleteTherapyPlan: (id: string) => Promise<void>;
 
+  healthRecords: HealthRecordData[];
+  addHealthRecord: (data: Omit<HealthRecordData, 'id' | 'locked' | 'createdAt' | 'updatedAt' | 'hashIntegrity'>) => Promise<HealthRecordData>;
+  updateHealthRecord: (id: string, patch: Partial<HealthRecordData>) => Promise<HealthRecordData>;
+  lockHealthRecord: (id: string) => Promise<HealthRecordData>;
+  deleteHealthRecord: (id: string) => Promise<void>;
+
   getUnreadCount: (userId: number) => number;
   markAllRead: (userId: number) => void;
 
@@ -329,23 +405,25 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
   const [specialist, setSpecialist] = useState<SpecialistData>(SPECIALIST_FALLBACK);
   const [users, setUsers] = useState<UserData[]>([]);
   const [therapyPlans, setTherapyPlans] = useState<TherapyPlanData[]>([]);
+  const [healthRecords, setHealthRecords] = useState<HealthRecordData[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Media sigue en localStorage (no tiene endpoint aún)
-  const [media, setMedia] = useState<MediaItem[]>(() => load('eco_media', [] as MediaItem[]));
+  const [media, setMedia] = useState<MediaItem[]>([]);
 
   // ── Carga inicial desde API ──────────────────────────────────────────────────
   useEffect(() => {
     const fetchAll = async () => {
       setLoading(true);
       try {
-        const [svcRes, postRes, aptRes, specRes, usrRes, planRes] = await Promise.allSettled([
+        const [svcRes, postRes, aptRes, specRes, usrRes, planRes, hrRes, mediaRes] = await Promise.allSettled([
           axiosClient.get('/services'),
           axiosClient.get('/posts'),
           axiosClient.get('/appointments'),
           axiosClient.get('/specialist'),
           axiosClient.get('/user'),
           axiosClient.get('/therapy-plans'),
+          axiosClient.get('/health-records'),
+          axiosClient.get('/media'),
         ]);
 
         if (svcRes.status === 'fulfilled') setServices(svcRes.value.data.map(serviceFromApi));
@@ -354,6 +432,8 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
         if (specRes.status === 'fulfilled' && specRes.value.data) setSpecialist(specialistFromApi(specRes.value.data));
         if (usrRes.status === 'fulfilled') setUsers(usrRes.value.data.map(userFromApi));
         if (planRes.status === 'fulfilled') setTherapyPlans(planRes.value.data.map(therapyPlanFromApi));
+        if (hrRes.status === 'fulfilled') setHealthRecords(hrRes.value.data.map(healthRecordFromApi));
+        if (mediaRes.status === 'fulfilled') setMedia(mediaRes.value.data.map(mediaFromApi));
       } catch (e) {
         console.warn('[AdminDataContext] Error cargando datos desde API:', e);
       } finally {
@@ -433,15 +513,21 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // ── Media (localStorage) ──────────────────────────────────────────────────────
-  const addMedia = useCallback((item: Omit<MediaItem, 'id' | 'uploadedAt'>): MediaItem => {
-    const newItem: MediaItem = { ...item, id: uid(), uploadedAt: new Date().toISOString() };
-    setMedia(prev => { const next = [newItem, ...prev]; save('eco_media', next); return next; });
-    return newItem;
+  // ── Media (API) ───────────────────────────────────────────────────────────────
+  const addMedia = useCallback(async (file: File): Promise<MediaItem> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const { data } = await axiosClient.post('/media/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    const item = mediaFromApi(data);
+    setMedia(prev => [item, ...prev]);
+    return item;
   }, []);
 
-  const deleteMedia = useCallback((id: string) => {
-    setMedia(prev => { const next = prev.filter(m => m.id !== id); save('eco_media', next); return next; });
+  const deleteMedia = useCallback(async (id: string): Promise<void> => {
+    await axiosClient.delete(`/media/${id}`);
+    setMedia(prev => prev.filter(m => m.id !== id));
   }, []);
 
   // ── Users (API) ───────────────────────────────────────────────────────────────
@@ -504,6 +590,38 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
     setTherapyPlans(prev => prev.filter(p => p.id !== id));
   }, []);
 
+  // ── Health Records (API) ──────────────────────────────────────────────────────
+  const addHealthRecord = useCallback(async (
+    d: Omit<HealthRecordData, 'id' | 'locked' | 'createdAt' | 'updatedAt' | 'hashIntegrity'>,
+  ): Promise<HealthRecordData> => {
+    const { data } = await axiosClient.post('/health-records', healthRecordToApi(d));
+    const rec = healthRecordFromApi(data);
+    setHealthRecords(prev => [rec, ...prev]);
+    return rec;
+  }, []);
+
+  const updateHealthRecord = useCallback(async (id: string, patch: Partial<HealthRecordData>): Promise<HealthRecordData> => {
+    const existing = healthRecords.find(r => r.id === id);
+    if (!existing) throw new Error('Historia no encontrada');
+    const merged = { ...existing, ...patch };
+    const { data } = await axiosClient.put(`/health-records/${id}`, healthRecordToApi(merged));
+    const updated = healthRecordFromApi(data);
+    setHealthRecords(prev => prev.map(r => r.id === id ? updated : r));
+    return updated;
+  }, [healthRecords]);
+
+  const lockHealthRecord = useCallback(async (id: string): Promise<HealthRecordData> => {
+    const { data } = await axiosClient.patch(`/health-records/${id}/lock`);
+    const locked = healthRecordFromApi(data);
+    setHealthRecords(prev => prev.map(r => r.id === id ? locked : r));
+    return locked;
+  }, []);
+
+  const deleteHealthRecord = useCallback(async (id: string): Promise<void> => {
+    await axiosClient.delete(`/health-records/${id}`);
+    setHealthRecords(prev => prev.filter(r => r.id !== id));
+  }, []);
+
   // ── Notifications ─────────────────────────────────────────────────────────────
   const getUnreadCount = useCallback((userId: number): number => {
     const lastVisit = localStorage.getItem(`eco_pub_visit_${userId}`) ?? '1970-01-01';
@@ -524,6 +642,7 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
         specialist, updateSpecialist,
         appointments, addAppointment, updateAppointment,
         therapyPlans, addTherapyPlan, updateTherapyPlan, deleteTherapyPlan,
+        healthRecords, addHealthRecord, updateHealthRecord, lockHealthRecord, deleteHealthRecord,
         getUnreadCount, markAllRead,
         loading,
       }}

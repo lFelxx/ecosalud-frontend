@@ -13,6 +13,12 @@ import MenuIcon from '@mui/icons-material/Menu';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
+import MedicalServicesOutlinedIcon from '@mui/icons-material/MedicalServicesOutlined';
+import BarChartOutlinedIcon from '@mui/icons-material/BarChartOutlined';
+import EventNoteOutlinedIcon from '@mui/icons-material/EventNoteOutlined';
+import GavelOutlinedIcon from '@mui/icons-material/GavelOutlined';
+import CreditCardOutlinedIcon from '@mui/icons-material/CreditCardOutlined';
+import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
 import { useAuthContext } from '../../context/AuthContext';
 
 const SIDEBAR_W = 240;
@@ -26,11 +32,17 @@ function schemaToClinicName(schema?: string | null): string {
 const ALL_NAV = [
   { label: 'Dashboard',     icon: <DashboardOutlinedIcon />,       to: '/admin',              exact: true,  adminOnly: false },
   { label: 'Publicaciones', icon: <ArticleOutlinedIcon />,         to: '/admin/posts',        exact: false, adminOnly: false },
-  { label: 'Citas',         icon: <CalendarMonthOutlinedIcon />,   to: '/admin/appointments', exact: false, adminOnly: false },
-  { label: 'Terapias',      icon: <SpaOutlinedIcon />,             to: '/admin/services',     exact: false, adminOnly: true  },
+  { label: 'Citas',         icon: <CalendarMonthOutlinedIcon />,   to: '/admin/appointments',   exact: false, adminOnly: false },
+  { label: 'Historia Clín.',icon: <MedicalServicesOutlinedIcon />, to: '/admin/health-records',  exact: false, adminOnly: false },
+  { label: 'Planes',        icon: <EventNoteOutlinedIcon />,       to: '/admin/therapy-plans',  exact: false, adminOnly: false },
+  { label: 'Terapias',      icon: <SpaOutlinedIcon />,             to: '/admin/services',       exact: false, adminOnly: true  },
   { label: 'Especialista',  icon: <PersonOutlinedIcon />,          to: '/admin/specialist',   exact: false, adminOnly: true  },
   { label: 'Medios',        icon: <ImageOutlinedIcon />,           to: '/admin/media',        exact: false, adminOnly: true  },
   { label: 'Usuarios',      icon: <PeopleOutlinedIcon />,          to: '/admin/users',        exact: false, adminOnly: true  },
+  { label: 'Consentim.',   icon: <GavelOutlinedIcon />,           to: '/admin/consents',     exact: false, adminOnly: false },
+  { label: 'Reportes',     icon: <BarChartOutlinedIcon />,             to: '/admin/reports',        exact: false, adminOnly: true  },
+  { label: 'Notificac.',  icon: <NotificationsActiveOutlinedIcon />, to: '/admin/notifications', exact: false, adminOnly: true  },
+  { label: 'Suscripción', icon: <CreditCardOutlinedIcon />,          to: '/admin/billing',        exact: false, adminOnly: true  },
 ];
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {

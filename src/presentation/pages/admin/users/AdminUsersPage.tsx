@@ -7,6 +7,7 @@ import {
   IconButton, InputAdornment, Divider, Alert,
 } from '@mui/material';
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
+import PlanLimitBanner, { type PlanLimitError, extractPlanLimitError } from '../../../components/common/PlanLimitBanner';
 import CloseIcon from '@mui/icons-material/Close';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
@@ -70,11 +71,12 @@ export default function AdminUsersPage() {
   const { users, addUser, updateUserRole, toggleUserStatus } = useAdminData();
   const { user: currentUser } = useAuthContext();
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [form, setForm] = useState<NewUserForm>(EMPTY_FORM);
-  const [showPwd, setShowPwd] = useState(false);
-  const [emailError, setEmailError] = useState('');
-  const [created, setCreated] = useState(false);
+  const [dialogOpen,     setDialogOpen]     = useState(false);
+  const [form,           setForm]           = useState<NewUserForm>(EMPTY_FORM);
+  const [showPwd,        setShowPwd]        = useState(false);
+  const [emailError,     setEmailError]     = useState('');
+  const [created,        setCreated]        = useState(false);
+  const [planLimitError, setPlanLimitError] = useState<PlanLimitError | null>(null);
 
   const sorted = [...users].sort((a, b) => {
     const order: Record<string, number> = { ADMIN: 0, EDITOR: 1, PATIENT: 2 };
@@ -87,6 +89,7 @@ export default function AdminUsersPage() {
     setEmailError('');
     setCreated(false);
     setShowPwd(false);
+    setPlanLimitError(null);
     setDialogOpen(true);
   };
 
@@ -112,8 +115,14 @@ export default function AdminUsersPage() {
       }
       setCreated(true);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'No se pudo crear el usuario';
-      setEmailError(msg);
+      const limitErr = extractPlanLimitError(err);
+      if (limitErr) {
+        setPlanLimitError(limitErr);
+      } else {
+        const msg = (err as { response?: { data?: { message?: string } } })
+          ?.response?.data?.message ?? (err instanceof Error ? err.message : 'No se pudo crear el usuario');
+        setEmailError(msg);
+      }
     }
   };
 
@@ -307,6 +316,9 @@ export default function AdminUsersPage() {
             </Box>
           ) : (
             <>
+              {/* Límite de plan (402) */}
+              <PlanLimitBanner error={planLimitError} compact />
+
               {/* Nombre */}
               <TextField
                 label="Nombre completo"

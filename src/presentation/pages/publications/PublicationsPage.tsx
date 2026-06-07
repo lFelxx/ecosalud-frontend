@@ -12,6 +12,7 @@ import Navbar from '../../components/common/Navbar';
 import Footer from '../../components/common/Footer';
 import { useAdminData } from '../../context/AdminDataContext';
 import { useAuthContext } from '../../context/AuthContext';
+import { useSeo } from '../../hooks/useSeo';
 
 function PostCard({ post, featured = false }: { post: { id: string; title: string; excerpt: string; imageBase64?: string; tags: string[]; authorName: string; publishedAt?: string }; featured?: boolean }) {
   return (
@@ -129,8 +130,13 @@ function PostCard({ post, featured = false }: { post: { id: string; title: strin
 }
 
 export default function PublicationsPage() {
-  const { posts, markAllRead } = useAdminData();
+  const { posts, markAllRead, specialist } = useAdminData();
   const { user, isAuthenticated } = useAuthContext();
+
+  useSeo(
+    `Blog de salud | ${specialist.name} — Ecosalud`,
+    `Artículos y consejos de ${specialist.specialty}. Lee nuestras publicaciones sobre bienestar, terapias y salud integral.`,
+  );
 
   const published = posts
     .filter((p) => p.status === 'published')

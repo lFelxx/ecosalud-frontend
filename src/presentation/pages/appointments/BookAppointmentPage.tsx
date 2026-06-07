@@ -4,7 +4,9 @@ import { Link as RouterLink } from 'react-router-dom';
 import {
   Box, Typography, Container, Grid, Card, CardContent,
   Button, Avatar, Chip, Divider, IconButton, Stack, Dialog,
+  CircularProgress, Alert,
 } from '@mui/material';
+import axiosClient from '../../../infrastructure/http/axiosClient';
 import SpaOutlinedIcon from '@mui/icons-material/SpaOutlined';
 import WaterDropOutlinedIcon from '@mui/icons-material/WaterDropOutlined';
 import CloudOutlinedIcon from '@mui/icons-material/CloudOutlined';
@@ -23,6 +25,7 @@ import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import Navbar from '../../components/common/Navbar';
 import Footer from '../../components/common/Footer';
+import PlanLimitBanner, { type PlanLimitError, extractPlanLimitError } from '../../components/common/PlanLimitBanner';
 import doctorImage from '../../../assets/doctor-hero.jpg';
 import { useAdminData } from '../../context/AdminDataContext';
 import { useAuthContext } from '../../context/AuthContext';
@@ -122,8 +125,18 @@ function StepLabel({ n, text }: { n: number; text: string }) {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
+/** Convierte "08:00 AM" / "02:00 PM" → "08:00:00" / "14:00:00" (formato LocalTime del backend). */
+function toLocalTime(slot: string): string {
+  const [time, period] = slot.split(' ');
+  const [h, m] = time.split(':');
+  let hours = parseInt(h, 10);
+  if (period === 'PM' && hours !== 12) hours += 12;
+  if (period === 'AM' && hours === 12) hours = 0;
+  return `${String(hours).padStart(2, '0')}:${m}:00`;
+}
+
 export default function BookAppointmentPage() {
-  const { services, specialist, addAppointment } = useAdminData();
+  const { services, specialist } = useAdminData();
   const { user } = useAuthContext();
 
   const today = new Date();
@@ -132,7 +145,10 @@ export default function BookAppointmentPage() {
   const [calMonth, setCalMonth] = useState(today.getMonth());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [confirmed, setConfirmed] = useState(false);
+  const [confirmed,      setConfirmed]      = useState(false);
+  const [booking,        setBooking]        = useState(false);
+  const [bookError,      setBookError]      = useState('');
+  const [planLimitError, setPlanLimitError] = useState<PlanLimitError | null>(null);
 
   const displayServices = useMemo(() => services.slice(0, 4), [services]);
   const selectedService = useMemo(
@@ -163,18 +179,30 @@ export default function BookAppointmentPage() {
     setSelectedTime(null);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!canConfirm || !selectedService || !selectedDate || !selectedTime) return;
-    addAppointment({
-      patientId:    user?.id ?? 0,
-      patientName:  user?.name ?? 'Paciente',
-      patientEmail: user?.email ?? '',
-      service:      selectedService.name,
-      date:         selectedDate.toISOString().slice(0, 10),
-      time:         selectedTime.replace(' AM', ':00').replace(' PM', ':00'), // normalize
-      status:       'pending',
-    });
-    setConfirmed(true);
+    setBooking(true);
+    setBookError('');
+    try {
+      // /appointments/book: el backend fuerza patientId del JWT (seguridad)
+      await axiosClient.post('/appointments/book', {
+        serviceId:       parseInt(selectedServiceId!, 10),
+        appointmentDate: selectedDate.toISOString().slice(0, 10),   // "YYYY-MM-DD"
+        appointmentTime: toLocalTime(selectedTime),                  // "HH:mm:ss"
+      });
+      setConfirmed(true);
+    } catch (err: unknown) {
+      const limitErr = extractPlanLimitError(err);
+      if (limitErr) {
+        setPlanLimitError(limitErr);
+      } else {
+        const msg = (err as { response?: { data?: { message?: string } } })
+          ?.response?.data?.message;
+        setBookError(msg ?? 'No se pudo agendar la cita. Intenta de nuevo.');
+      }
+    } finally {
+      setBooking(false);
+    }
   };
 
   // ── Main booking flow ───────────────────────────────────────────────────────
@@ -511,12 +539,27 @@ export default function BookAppointmentPage() {
 
                   <Divider sx={{ my: 2 }} />
 
+                  {/* Límite de plan superado (402) */}
+                  <PlanLimitBanner error={planLimitError} />
+
+                  {/* Error de booking */}
+                  {bookError && (
+                    <Alert
+                      severity="error"
+                      onClose={() => setBookError('')}
+                      sx={{ borderRadius: 2, mb: 1.5, fontSize: '0.82rem' }}
+                    >
+                      {bookError}
+                    </Alert>
+                  )}
+
                   {/* Confirm button */}
                   <Button
                     fullWidth
                     variant="contained"
-                    disabled={!canConfirm}
+                    disabled={!canConfirm || booking}
                     onClick={handleConfirm}
+                    startIcon={booking ? <CircularProgress size={16} sx={{ color: '#fff' }} /> : undefined}
                     sx={{
                       bgcolor: '#3DAA96', borderRadius: 2, fontWeight: 800, py: 1.4, fontSize: '0.95rem',
                       boxShadow: canConfirm ? '0 4px 16px rgba(61,170,150,0.35)' : 'none',
@@ -524,7 +567,7 @@ export default function BookAppointmentPage() {
                       '&.Mui-disabled': { bgcolor: '#C5DDD8', color: '#fff' },
                     }}
                   >
-                    Confirmar Agendamiento
+                    {booking ? 'Agendando…' : 'Confirmar Agendamiento'}
                   </Button>
 
                   <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 1.5, lineHeight: 1.5, px: 1 }}>
@@ -627,6 +670,7 @@ export default function BookAppointmentPage() {
                   setSelectedServiceId(null);
                   setSelectedDate(null);
                   setSelectedTime(null);
+                  setBookError('');
                 }}
                 variant="outlined"
                 sx={{ borderColor: '#C5DDD8', color: '#5A7A74', borderRadius: 2, fontWeight: 600 }}
