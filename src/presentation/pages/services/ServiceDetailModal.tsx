@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Dialog, Box, Typography, Button, Chip, Divider, IconButton, Stack,
 } from '@mui/material';
@@ -68,7 +68,16 @@ function ModalImage({ src, icon }: { src: string; icon: ReactNode }) {
 }
 
 export default function ServiceDetailModal({ service, onClose }: Props) {
+  const navigate = useNavigate();
+
   if (!service) return null;
+
+  const handleBook = () => {
+    onClose();
+    navigate('/appointments/book', {
+      state: { preselectedServiceName: service.name },
+    });
+  };
 
   return (
     <Dialog
@@ -224,9 +233,8 @@ export default function ServiceDetailModal({ service, onClose }: Props) {
         {/* Botones */}
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
           <Button
-            component={RouterLink}
-            to="/appointments/book"
             variant="contained"
+            onClick={handleBook}
             sx={{
               flex: 1,
               minWidth: 140,

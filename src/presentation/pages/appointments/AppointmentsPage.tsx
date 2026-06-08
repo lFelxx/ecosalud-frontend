@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+import { getMyAppointments, type BackendAppointment } from '../../services/appointmentApi';
 import {
   Box, Typography, Avatar, Button, Chip, LinearProgress,
   Paper, Stack, Table, TableBody, TableCell, TableHead, TableRow,
@@ -482,9 +483,25 @@ function CancelModal({
 
 // ── Página principal ──────────────────────────────────────────────────────────
 
+// ── Estilos de estado de cita ─────────────────────────────────────────────────
+
+const STATUS_CONFIG: Record<BackendAppointment['status'], { label: string; bgcolor: string; color: string }> = {
+  PENDIENTE:  { label: 'Pendiente',  bgcolor: '#FFF8E8', color: '#B67A00' },
+  CONFIRMADA: { label: 'Confirmada', bgcolor: '#EAF6F3', color: '#2B8A78' },
+  COMPLETADA: { label: 'Completada', bgcolor: '#E8F5E9', color: '#2E7D32' },
+  CANCELADA:  { label: 'Cancelada',  bgcolor: '#FFF0EE', color: '#C0392B' },
+};
+
 export default function AppointmentsPage() {
   const { specialist, appointments } = useAdminData();
   const { user } = useAuthContext();
+
+  // Citas reales del backend
+  const [realAppointments, setRealAppointments] = useState<BackendAppointment[]>([]);
+
+  useEffect(() => {
+    getMyAppointments().then(setRealAppointments);
+  }, []);
 
   // Modal state
   const [recsOpen, setRecsOpen]     = useState(false);
@@ -650,6 +667,83 @@ export default function AppointmentsPage() {
 
           {/* ── RIGHT MAIN ───────────────────────────────────────────────────── */}
           <Box sx={{ flex: 1, minWidth: 0 }}>
+
+            {/* ── Mis Citas (real del backend) ─────────────────────────────── */}
+            <Box sx={{ mb: 3 }}>
+              <Stack direction="row" sx={{ alignItems: 'center', gap: 1.5, mb: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, color: '#1A3E38' }}>
+                  Mis Citas
+                </Typography>
+                <Chip
+                  label={realAppointments.length > 0 ? `${realAppointments.length}` : 'SIN CITAS'}
+                  size="small"
+                  sx={{ bgcolor: '#EAF6F3', color: '#2B8A78', fontWeight: 700, fontSize: '0.65rem', height: 20, letterSpacing: 0.5 }}
+                />
+              </Stack>
+
+              {realAppointments.length === 0 ? (
+                <Paper elevation={0} sx={{ border: '1px solid #E3EFEC', borderRadius: 3, p: 3, textAlign: 'center' }}>
+                  <Typography variant="body2" sx={{ color: '#5A7A74', mb: 1.5 }}>
+                    Aún no tienes citas agendadas.
+                  </Typography>
+                  <Button
+                    component={RouterLink}
+                    to="/appointments/book"
+                    variant="contained"
+                    disableElevation
+                    size="small"
+                    sx={{ bgcolor: '#3DAA96', borderRadius: 2, fontWeight: 600, '&:hover': { bgcolor: '#2B8A78' } }}
+                  >
+                    Agendar mi primera cita
+                  </Button>
+                </Paper>
+              ) : (
+                <Paper elevation={0} sx={{ border: '1px solid #E3EFEC', borderRadius: 3, overflow: 'hidden' }}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow sx={{ bgcolor: '#F4FAF8' }}>
+                        {['Fecha', 'Hora', 'Terapia', 'Estado'].map((h) => (
+                          <TableCell
+                            key={h}
+                            sx={{ fontSize: '0.72rem', fontWeight: 700, color: '#5A7A74', letterSpacing: 0.5, borderBottom: '1px solid #E3EFEC', py: 1.2 }}
+                          >
+                            {h}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {realAppointments.map((apt, idx) => {
+                        const cfg = STATUS_CONFIG[apt.status];
+                        return (
+                          <TableRow
+                            key={apt.id}
+                            sx={{ bgcolor: idx % 2 === 0 ? '#FAFFFE' : '#fff', '&:last-child td': { border: 0 } }}
+                          >
+                            <TableCell sx={{ py: 1.4, fontSize: '0.84rem', color: '#1A3E38', fontWeight: 600 }}>
+                              {formatDateShort(apt.appointmentDate)}
+                            </TableCell>
+                            <TableCell sx={{ py: 1.4, fontSize: '0.82rem', color: '#5A7A74' }}>
+                              {apt.appointmentTime.slice(0, 5)}
+                            </TableCell>
+                            <TableCell sx={{ py: 1.4, fontSize: '0.84rem', color: '#1A3E38', fontWeight: 500 }}>
+                              {apt.serviceName}
+                            </TableCell>
+                            <TableCell sx={{ py: 1.4 }}>
+                              <Chip
+                                label={cfg.label}
+                                size="small"
+                                sx={{ bgcolor: cfg.bgcolor, color: cfg.color, fontWeight: 700, fontSize: '0.65rem', height: 20 }}
+                              />
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </Paper>
+              )}
+            </Box>
 
             {/* Terapias Activas */}
             <Box sx={{ mb: 3 }}>

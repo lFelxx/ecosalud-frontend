@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { fetchBackendServices, bookAppointment } from '../../services/appointmentApi';
 import {
   Box, Typography, Container, Grid, Card, CardContent,
   Button, Avatar, Chip, Divider, IconButton, Stack, Dialog,
@@ -60,6 +61,26 @@ const CATEGORY_BADGE: Record<string, { label: string; bg: string; color: string 
   'Dolor Crónico': { label: 'Popular',      bg: '#FFF0EE', color: '#C0392B' },
   'Desintoxicación':{ label: 'Bienestar',   bg: '#EEF0FF', color: '#5A5FC8' },
 };
+
+// ── Router state type ──────────────────────────────────────────────────────────
+
+interface LocationState {
+  preselectedServiceId?: string;
+  preselectedServiceName?: string;
+}
+
+// ── Time helpers ──────────────────────────────────────────────────────────────
+
+/** Convierte "08:00 AM" / "02:00 PM" → "08:00" / "14:00" (formato 24h para el backend) */
+function slotTo24h(slot: string): string {
+  const parts = slot.split(' ');
+  const period = parts[1];
+  const [hStr, mStr] = parts[0].split(':');
+  let h = parseInt(hStr, 10);
+  if (period === 'PM' && h !== 12) h += 12;
+  if (period === 'AM' && h === 12) h = 0;
+  return `${String(h).padStart(2, '0')}:${mStr}`;
+}
 
 // ── Calendar helpers ───────────────────────────────────────────────────────────
 
@@ -125,6 +146,7 @@ function StepLabel({ n, text }: { n: number; text: string }) {
 export default function BookAppointmentPage() {
   const { services, specialist, addAppointment } = useAdminData();
   const { user } = useAuthContext();
+  const location = useLocation();
 
   const today = new Date();
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
@@ -133,6 +155,30 @@ export default function BookAppointmentPage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState(false);
+  // Backend integration state
+  const [backendServiceMap, setBackendServiceMap] = useState<Map<string, number>>(new Map());
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [bookingError, setBookingError] = useState<string | null>(null);
+
+  // Fetch backend services on mount to build name → numeric-id map
+  useEffect(() => {
+    fetchBackendServices().then((list) => {
+      const map = new Map<string, number>();
+      list.forEach((s) => map.set(s.name.toLowerCase().trim(), s.id));
+      setBackendServiceMap(map);
+    });
+  }, []);
+
+  // Apply pre-selected service from router state (coming from ServicesPage)
+  useEffect(() => {
+    const state = location.state as LocationState | null;
+    if (state?.preselectedServiceId) {
+      setSelectedServiceId(state.preselectedServiceId);
+    } else if (state?.preselectedServiceName) {
+      const match = services.find((s) => s.name === state.preselectedServiceName);
+      if (match) setSelectedServiceId(match.id);
+    }
+  }, []); // intentional: only on mount
 
   const displayServices = useMemo(() => services.slice(0, 4), [services]);
   const selectedService = useMemo(
@@ -143,7 +189,7 @@ export default function BookAppointmentPage() {
   const calCells = useMemo(() => buildCalendar(calYear, calMonth), [calYear, calMonth]);
   const slots = useMemo(() => getSlots(selectedDate), [selectedDate]);
 
-  const canConfirm = !!selectedServiceId && !!selectedDate && !!selectedTime;
+  const canConfirm = !!selectedServiceId && !!selectedDate && !!selectedTime && !bookingLoading;
 
   const prevMonth = () => {
     if (calMonth === 0) { setCalYear((y) => y - 1); setCalMonth(11); }
@@ -163,17 +209,42 @@ export default function BookAppointmentPage() {
     setSelectedTime(null);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!canConfirm || !selectedService || !selectedDate || !selectedTime) return;
+
+    setBookingLoading(true);
+    setBookingError(null);
+
+    const appointmentDate = selectedDate.toISOString().slice(0, 10);
+    const appointmentTime = slotTo24h(selectedTime);
+
+    // Look up backend numeric service ID by service name
+    const backendServiceId = backendServiceMap.get(selectedService.name.toLowerCase().trim());
+
+    if (backendServiceId !== undefined) {
+      // ── Real backend booking ────────────────────────────────────────────
+      try {
+        await bookAppointment({ serviceId: backendServiceId, appointmentDate, appointmentTime });
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Error al conectar con el servidor';
+        setBookingError(msg);
+        setBookingLoading(false);
+        return;
+      }
+    }
+
+    // ── Also save locally so "Mis Citas" stats update immediately ────────
     addAppointment({
       patientId:    user?.id ?? 0,
       patientName:  user?.name ?? 'Paciente',
       patientEmail: user?.email ?? '',
       service:      selectedService.name,
-      date:         selectedDate.toISOString().slice(0, 10),
-      time:         selectedTime.replace(' AM', ':00').replace(' PM', ':00'), // normalize
+      date:         appointmentDate,
+      time:         appointmentTime,
       status:       'pending',
     });
+
+    setBookingLoading(false);
     setConfirmed(true);
   };
 
@@ -511,12 +582,21 @@ export default function BookAppointmentPage() {
 
                   <Divider sx={{ my: 2 }} />
 
+                  {/* Error de booking */}
+                  {bookingError && (
+                    <Box sx={{ bgcolor: '#FFF0EE', border: '1px solid #F8C5BF', borderRadius: 2, p: 1.5, mb: 1.5 }}>
+                      <Typography variant="caption" sx={{ color: '#C0392B', fontWeight: 600, lineHeight: 1.5, display: 'block' }}>
+                        ⚠️ {bookingError}
+                      </Typography>
+                    </Box>
+                  )}
+
                   {/* Confirm button */}
                   <Button
                     fullWidth
                     variant="contained"
                     disabled={!canConfirm}
-                    onClick={handleConfirm}
+                    onClick={() => { void handleConfirm(); }}
                     sx={{
                       bgcolor: '#3DAA96', borderRadius: 2, fontWeight: 800, py: 1.4, fontSize: '0.95rem',
                       boxShadow: canConfirm ? '0 4px 16px rgba(61,170,150,0.35)' : 'none',
@@ -524,7 +604,7 @@ export default function BookAppointmentPage() {
                       '&.Mui-disabled': { bgcolor: '#C5DDD8', color: '#fff' },
                     }}
                   >
-                    Confirmar Agendamiento
+                    {bookingLoading ? 'Agendando…' : 'Confirmar Agendamiento'}
                   </Button>
 
                   <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 1.5, lineHeight: 1.5, px: 1 }}>

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import type { ReactNode, SyntheticEvent } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Box, Typography, Container, Card, CardContent, CardMedia,
   Button, Grid, Link, Chip, Stack,
@@ -106,6 +106,7 @@ function ServiceImage({ src, icon }: { src: string; icon: ReactNode }) {
 
 export default function ServicesPage() {
   const { services } = useAdminData();
+  const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState('Todas');
   const [selectedService, setSelectedService] = useState<ServiceDetail | null>(null);
 
@@ -197,7 +198,10 @@ export default function ServicesPage() {
 
         {/* ── Grid de servicios ── */}
         <Grid container spacing={2.5}>
-          {filtered.map((service) => (
+          {filtered.map((service) => {
+            // Recupera el ID string del servicio para pre-seleccionarlo en BookAppointmentPage
+            const origId = services.find((s) => s.name === service.name)?.id;
+            return (
             <Grid size={{ xs: 12, sm: 6, md: 3 }} key={service.name}>
               <Card
                 sx={{
@@ -230,10 +234,13 @@ export default function ServicesPage() {
                   </Typography>
 
                   <Button
-                    component={RouterLink}
-                    to="/appointments/book"
                     variant="contained"
                     fullWidth
+                    onClick={() =>
+                      navigate('/appointments/book', {
+                        state: { preselectedServiceId: origId, preselectedServiceName: service.name },
+                      })
+                    }
                     sx={{
                       bgcolor: '#3DAA96',
                       borderRadius: 2,
@@ -266,7 +273,8 @@ export default function ServicesPage() {
                 </CardContent>
               </Card>
             </Grid>
-          ))}
+            );
+          })}
         </Grid>
 
       </Container>
