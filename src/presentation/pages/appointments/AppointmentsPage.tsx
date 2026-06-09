@@ -756,9 +756,9 @@ export default function AppointmentsPage() {
                   No tienes citas activas en este momento.
                 </Typography>
               ) : (
-                <Stack direction={{ xs: 'column', lg: 'row' }} sx={{ gap: 2 }}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: 2 }}>
                   {activeTherapies.map((t) => (
-                    <Box key={t.id} sx={{ flex: 1 }}>
+                    <Box key={t.id}>
                       <ActiveTherapyCard
                         {...t}
                         onRecommendations={() => openRecs(t.name)}
@@ -767,7 +767,7 @@ export default function AppointmentsPage() {
                       />
                     </Box>
                   ))}
-                </Stack>
+                </Box>
               )}
             </Box>
 
