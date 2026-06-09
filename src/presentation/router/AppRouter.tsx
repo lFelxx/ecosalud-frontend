@@ -13,6 +13,7 @@ import BookAppointmentPage from '../pages/appointments/BookAppointmentPage';
 import CatalogPage from '../pages/catalog/CatalogPage';
 import PublicationsPage from '../pages/publications/PublicationsPage';
 import PublicationDetailPage from '../pages/publications/PublicationDetailPage';
+import WireframePage from '../pages/wireframe/WireframePage';
 
 // Admin
 import AdminLayout from '../pages/admin/AdminLayout';
@@ -61,6 +62,7 @@ export default function AppRouter() {
         <Route path="/catalog" element={<CatalogPage />} />
         <Route path="/publications" element={<PublicationsPage />} />
         <Route path="/publications/:id" element={<PublicationDetailPage />} />
+        <Route path="/wireframe" element={<WireframePage />} />
 
         {/* Páginas privadas */}
         <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />

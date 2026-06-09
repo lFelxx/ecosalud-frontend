@@ -1,68 +1,174 @@
-# 🌿 EcoSalud - Frontend
+# Ecosalud — Frontend
 
-Aplicación web enfocada en la gestión y reserva de citas médicas en consultorios y centros de atención pequeños, facilitando la organización de agendas y mejorando la experiencia tanto para pacientes como para el personal médico.
-
----
-
-## 📌 Descripción
-
-EcoSalud Citas es una interfaz web que permite a los usuarios visualizar disponibilidad de horarios y agendar citas médicas de manera rápida y sencilla.
-
-El sistema busca digitalizar el proceso de asignación de citas, reduciendo el desorden operativo y mejorando la eficiencia en la atención.
+Aplicación web de página única (SPA) para la plataforma **Ecosalud**, un centro de salud integral que ofrece terapias alternativas, agendamiento de citas en línea y gestión administrativa completa. Desarrollada con React 19, TypeScript 6 y Material UI v7.
 
 ---
 
-## ❗ Problemática
+## Descripción del proyecto
 
-Muchos consultorios pequeños no cuentan con herramientas digitales para gestionar sus citas, lo que genera:
+Ecosalud es una plataforma digital que conecta pacientes con servicios de salud integral: acupuntura, ozonoterapia, sueroterapia dirigida, biopuntura, terapia neural, homeopatía, entre otros. El frontend provee:
 
-- Desorganización en horarios
-- Pérdida de información
-- Dificultad para los pacientes al agendar
-- Procesos manuales ineficientes
-
----
-
-## 🎯 Objetivo
-
-Desarrollar una aplicación web intuitiva que permita a los pacientes reservar citas médicas en línea y a los consultorios gestionar su disponibilidad de manera organizada.
+- **Página de inicio** con presentación del especialista, catálogo de servicios y publicaciones del blog.
+- **Agendamiento de citas** en línea con selección de servicio, fecha y franja horaria disponible.
+- **Panel del paciente** (Mis Terapias): terapias activas con progreso, historial de sesiones y recomendaciones personalizadas.
+- **Panel de administración** completo: gestión de citas, planes de terapia multi-sesión, usuarios, servicios, publicaciones, galería de medios y perfil del especialista.
+- Autenticación por roles: Paciente, Editor y Administrador.
 
 ---
 
-## 👥 Usuarios objetivo
+## Arquitectura general
 
-- 🧑‍⚕️ Personal médico
-- 🧑 Pacientes
+El proyecto sigue una arquitectura de **presentación por capas** dentro de `src/presentation/`:
+
+```
+ecosalud-frontend/
+├── public/                    # Archivos estáticos públicos
+├── src/
+│   └── presentation/
+│       ├── components/        # Componentes reutilizables
+│       │   └── common/        # ScrollToTop, loaders, guards compartidos
+│       ├── context/           # Estado global con React Context API
+│       │   ├── AuthContext.tsx        # Sesión del usuario (rol, token JWT)
+│       │   └── AdminDataContext.tsx   # Datos del panel admin (localStorage)
+│       ├── pages/             # Vistas organizadas por módulo
+│       │   ├── home/          # LandingPage, HomePage
+│       │   ├── auth/          # LoginPage, RegisterPage
+│       │   ├── appointments/  # AppointmentsPage, BookAppointmentPage
+│       │   ├── services/      # ServicesPage
+│       │   ├── publications/  # PublicationsPage, PublicationDetailPage
+│       │   ├── specialist/    # SpecialistProfilePage
+│       │   └── admin/         # Panel administrativo completo
+│       │       ├── appointments/  # Citas y planes de terapia
+│       │       ├── services/      # Gestión de servicios
+│       │       ├── posts/         # Editor de publicaciones
+│       │       ├── media/         # Galería de medios
+│       │       ├── users/         # Gestión de usuarios
+│       │       └── specialist/    # Perfil del especialista
+│       ├── router/            # AppRouter.tsx — rutas privadas y de admin
+│       └── theme/             # Configuración del tema MUI (paleta verde)
+├── .env.example               # Plantilla de variables de entorno
+├── vercel.json                # Configuración de despliegue en Vercel
+└── vite.config.ts             # Configuración del bundler
+```
+
+### Flujo de datos
+
+- `AdminDataContext` actúa como fuente única de verdad para los datos administrativos, con sincronización automática a `localStorage`.
+- `AuthContext` gestiona la sesión activa y expone `user`, `isAuthenticated` y callbacks de login/logout.
+- Las rutas privadas (`PrivateRoute`, `AdminRoute`) redirigen automáticamente según el rol del usuario.
+- `ScrollToTop` preserva la posición de scroll al navegar con el botón Atrás del navegador y restablece al inicio en navegaciones nuevas.
 
 ---
 
-## 🚀 Funcionalidades principales
+## Tecnologías utilizadas
 
-- 📅 Visualización de disponibilidad de citas
-- 📝 Reserva de citas médicas
-- 👤 Registro e inicio de sesión de usuarios
-- 🔎 Selección de fechas y horarios disponibles
-- 📋 Gestión de citas (visualización y estado)
+| Categoría       | Tecnología                  | Versión |
+|-----------------|-----------------------------|---------|
+| Framework UI    | React                       | 19.x    |
+| Lenguaje        | TypeScript                  | 6.x     |
+| Bundler         | Vite (motor Rolldown)       | 8.x     |
+| Componentes UI  | Material UI (MUI)           | 9.x     |
+| Iconos          | @mui/icons-material         | 9.x     |
+| Routing         | React Router DOM            | 7.x     |
+| Cliente HTTP    | Axios                       | 1.x     |
+| Linting         | ESLint + typescript-eslint  | 10.x    |
+| Despliegue      | Vercel                      | —       |
 
 ---
 
-## 🧱 Arquitectura del frontend
+## Requisitos previos
 
-La aplicación sigue una arquitectura basada en componentes reutilizables, permitiendo escalabilidad y fácil mantenimiento.
+- **Node.js** 20 o superior — [descargar](https://nodejs.org/)
+- **npm** 9 o superior (incluido con Node.js)
+- Backend de Ecosalud en ejecución (ver repositorio `ecosalud-backend`)
 
 ---
 
-## 🛠️ Tecnologías utilizadas
+## Instalación
 
-- React
-- TypeScript
-- HTML5 & CSS3
-- Material UI
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/tu-org/ecosalud-frontend.git
+cd ecosalud-frontend
 
-## 🔗 Integración con Backend
+# 2. Instalar dependencias
+npm install
 
-El frontend se comunica con una API REST desarrollada en Spring Boot, encargada de:
+# 3. Configurar variables de entorno
+cp .env.example .env
+```
 
-- Gestión de usuarios
-- Disponibilidad de citas
-- Persistencia de datos.
+Editar el archivo `.env` recién creado:
+
+```env
+VITE_API_URL=http://localhost:8080/api
+```
+
+---
+
+## Ejecución local
+
+```bash
+# Servidor de desarrollo con recarga en caliente (Hot Module Replacement)
+npm run dev
+```
+
+La aplicación estará disponible en: **http://localhost:5173**
+
+```bash
+# Verificar tipos TypeScript sin compilar
+npm run build
+
+# Vista previa del build de producción (requiere ejecutar build primero)
+npm run preview
+```
+
+---
+
+## Variables de entorno
+
+| Variable        | Descripción                          | Valor por defecto            |
+|-----------------|--------------------------------------|------------------------------|
+| `VITE_API_URL`  | URL base del API REST del backend    | `http://localhost:8080/api`  |
+
+> **Vercel:** configurar esta variable en **Project Settings → Environment Variables** apuntando a la URL del backend desplegado.
+
+---
+
+## Despliegue en Vercel
+
+El repositorio incluye `vercel.json` preconfigurado:
+
+- **Rewrites:** todas las rutas redirigen a `index.html` para que React Router funcione en producción.
+- **Cache de assets:** archivos estáticos con `Cache-Control: max-age=31536000, immutable`.
+
+El despliegue se activa automáticamente al hacer push a `main`:
+
+```bash
+git push origin main
+```
+
+---
+
+## Estructura de ramas
+
+| Rama      | Propósito                                            |
+|-----------|------------------------------------------------------|
+| `main`    | Producción — solo versiones revisadas y aprobadas    |
+| `develop` | Desarrollo activo — integración de nuevas funciones  |
+
+---
+
+## Roles del sistema
+
+| Rol      | Acceso                                                           |
+|----------|------------------------------------------------------------------|
+| Paciente | Agendamiento, historial personal, publicaciones y servicios      |
+| Editor   | Todo lo anterior + gestión de publicaciones y catálogo           |
+| Admin    | Acceso completo al panel administrativo                          |
+
+---
+
+## Autores
+
+Proyecto académico desarrollado para la asignatura **Proyecto de Software** — Universidad IBERO.

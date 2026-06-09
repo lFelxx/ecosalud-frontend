@@ -270,6 +270,43 @@ export default function LandingPage() {
       </Box>
 
       <Footer />
+
+      {/* ════════════════════════════════════════════════════════════
+          BOTÓN FLOTANTE — Maquetación / Wireframe
+      ════════════════════════════════════════════════════════════ */}
+      <Box
+        component={RouterLink}
+        to="/wireframe"
+        sx={{
+          position: 'fixed',
+          bottom: 28,
+          right: 28,
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          bgcolor: '#2B3A36',
+          color: '#CCDDCA',
+          borderRadius: '10px',
+          px: 2.2,
+          py: 1.3,
+          textDecoration: 'none',
+          fontSize: '0.78rem',
+          fontWeight: 700,
+          fontFamily: 'monospace',
+          boxShadow: '0 4px 18px rgba(0,0,0,0.30)',
+          letterSpacing: 0.4,
+          border: '1.5px solid #4A6B60',
+          '&:hover': {
+            bgcolor: '#1A2E2A',
+            color: '#fff',
+            boxShadow: '0 6px 24px rgba(0,0,0,0.40)',
+          },
+          transition: 'all 0.2s',
+        }}
+      >
+        📐 Ver Maquetación
+      </Box>
     </Box>
   );
 }

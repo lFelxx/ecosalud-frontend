@@ -743,7 +743,7 @@ export default function AppointmentsPage() {
           {/* ── RIGHT MAIN ─────────────────────────────────────────────────── */}
           <Box sx={{ flex: 1, minWidth: 0 }}>
 
-            {/* Terapias Activas */}
+            {/* ── Mis Citas (real del backend) ─────────────────────────────── */}
             <Box sx={{ mb: 3 }}>
               <Stack direction="row" sx={{ alignItems: 'center', gap: 1.5, mb: 2 }}>
                 <Typography variant="h6" sx={{ fontWeight: 700, color: '#1A3E38' }}>Terapias Activas</Typography>
