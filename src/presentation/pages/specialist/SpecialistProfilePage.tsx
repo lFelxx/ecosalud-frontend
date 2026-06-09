@@ -226,7 +226,7 @@ export default function SpecialistProfilePage() {
                   <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.75, mb: 2.5 }}>
                     Utilizamos biorreguladores inyectables en puntos específicos para estimular los procesos naturales de curación del cuerpo. Ideal para dolores crónicos e inflamación persistente.
                   </Typography>
-                  <Link component={RouterLink} to="/services" underline="none"
+                  <Link component={RouterLink} to="/catalog" underline="none"
                     sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, color: '#3DAA96', fontWeight: 700, fontSize: '0.85rem', '&:hover': { gap: 1 }, transition: 'gap 0.2s' }}>
                     MÁS INFORMACIÓN <ArrowForwardIcon sx={{ fontSize: 16 }} />
                   </Link>
@@ -316,7 +316,7 @@ export default function SpecialistProfilePage() {
           <Box sx={{ textAlign: 'center', mt: 4 }}>
             <Button
               component={RouterLink}
-              to="/services"
+              to="/catalog"
               variant="outlined"
               endIcon={<ArrowForwardIcon />}
               sx={{

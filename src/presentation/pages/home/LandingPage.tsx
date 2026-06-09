@@ -83,7 +83,7 @@ export default function LandingPage() {
                   sx={{ bgcolor: '#3DAA96', borderRadius: 2, px: 3, fontWeight: 700, boxShadow: '0 4px 16px rgba(61,170,150,0.35)', '&:hover': { bgcolor: '#2B8A78' } }}>
                   Crear cuenta gratis
                 </Button>
-                <Button component={RouterLink} to="/services" variant="outlined" size="large"
+                <Button component={RouterLink} to="/catalog" variant="outlined" size="large"
                   sx={{ borderColor: '#3DAA96', color: '#3DAA96', borderRadius: 2, px: 3, fontWeight: 600, '&:hover': { bgcolor: '#E8F5F0', borderColor: '#2B8A78' } }}>
                   Ver servicios
                 </Button>

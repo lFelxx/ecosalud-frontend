@@ -6,11 +6,10 @@ import { useAuthContext } from '../context/AuthContext';
 
 const loginUseCase = new LoginUseCase(new AuthRepository());
 
-// Mock temporal — se reemplaza cuando el backend esté activo
-const MOCK_DB: Record<string, { id: number; name: string; role: 'PATIENT' | 'EDITOR' | 'ADMIN'; password: string }> = {
-  'admin@ecosalud.com': { id: 2, name: 'Angélica Camacho', role: 'ADMIN', password: 'admin123' },
-  'editor@ecosalud.com': { id: 3, name: 'Editor Ecosalud', role: 'EDITOR', password: 'editor123' },
-  'prueba@ecosalud.com': { id: 1, name: 'Paciente Prueba', role: 'PATIENT', password: 'ecosalud123' },
+// Admin y editor permanecen mockeados; los pacientes usan el backend real
+const STAFF_MOCK: Record<string, { id: number; name: string; role: 'ADMIN' | 'EDITOR'; password: string }> = {
+  'admin@ecosalud.com':  { id: 2, name: 'Angélica Camacho', role: 'ADMIN',  password: 'admin123'  },
+  'editor@ecosalud.com': { id: 3, name: 'Editor Ecosalud',  role: 'EDITOR', password: 'editor123' },
 };
 
 export function useLogin() {
@@ -23,25 +22,25 @@ export function useLogin() {
     setLoading(true);
     setError(null);
 
-    const mockUser = MOCK_DB[email.trim()];
-    if (mockUser && mockUser.password === password.trim()) {
-      login(`mock-token-${mockUser.role.toLowerCase()}`, {
-        id: mockUser.id,
-        name: mockUser.name,
+    const staffUser = STAFF_MOCK[email.trim()];
+    if (staffUser && staffUser.password === password.trim()) {
+      login(`mock-token-${staffUser.role.toLowerCase()}`, {
+        id: staffUser.id,
+        name: staffUser.name,
         email: email.trim(),
-        role: mockUser.role,
+        role: staffUser.role,
         status: 'ACTIVE',
       });
       setLoading(false);
-      // Redirigir al panel si es admin/editor
-      navigate(mockUser.role !== 'PATIENT' ? '/admin' : '/');
+      navigate('/admin');
       return;
     }
 
     try {
       const response = await loginUseCase.execute({ email: email.trim(), password: password.trim() });
       login(response.token, response.user);
-      navigate('/');
+      const role = response.user.role;
+      navigate(role === 'ADMIN' || role === 'THERAPIST' ? '/admin' : '/');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Correo o contraseña incorrectos.';
       setError(message);

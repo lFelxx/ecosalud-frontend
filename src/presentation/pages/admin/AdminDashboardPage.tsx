@@ -198,7 +198,7 @@ export default function AdminDashboardPage() {
               {isAdmin && (
                 <Button
                   component={RouterLink}
-                  to="/admin/services"
+                  to="/admin/catalog"
                   variant="outlined"
                   fullWidth
                   startIcon={<SpaOutlinedIcon />}
