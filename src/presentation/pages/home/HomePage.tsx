@@ -222,7 +222,7 @@ export default function HomePage() {
             </Box>
             <Link
               component={RouterLink}
-              to="/services"
+              to="/catalog"
               underline="none"
               sx={{ color: '#3DAA96', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 0.5, whiteSpace: 'nowrap' }}
             >

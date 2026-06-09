@@ -11,7 +11,7 @@ import { useAdminData } from '../../context/AdminDataContext';
 const PUBLIC_NAV = [
   { label: 'Inicio', to: '/' },
   { label: 'Especialista', to: '/especialista' },
-  { label: 'Servicios', to: '/services' },
+  { label: 'Servicios', to: '/catalog' },
   { label: 'Publicaciones', to: '/publications' },
 ];
 
@@ -19,7 +19,7 @@ const PRIVATE_NAV = [
   { label: 'Inicio', to: '/' },
   { label: 'Reservar Cita', to: '/appointments/book' },
   { label: 'Mis Terapias', to: '/appointments' },
-  { label: 'Servicios', to: '/services' },
+  { label: 'Servicios', to: '/catalog' },
   { label: 'Publicaciones', to: '/publications' },
 ];
 

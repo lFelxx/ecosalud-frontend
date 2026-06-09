@@ -21,7 +21,7 @@ const ALL_NAV = [
   { label: 'Dashboard',     icon: <DashboardOutlinedIcon />,       to: '/admin',              exact: true,  adminOnly: false },
   { label: 'Publicaciones', icon: <ArticleOutlinedIcon />,         to: '/admin/posts',        exact: false, adminOnly: false },
   { label: 'Citas',         icon: <CalendarMonthOutlinedIcon />,   to: '/admin/appointments', exact: false, adminOnly: false },
-  { label: 'Terapias',      icon: <SpaOutlinedIcon />,             to: '/admin/services',     exact: false, adminOnly: true  },
+  { label: 'Terapias',      icon: <SpaOutlinedIcon />,             to: '/admin/catalog',      exact: false, adminOnly: true  },
   { label: 'Especialista',  icon: <PersonOutlinedIcon />,          to: '/admin/specialist',   exact: false, adminOnly: true  },
   { label: 'Medios',        icon: <ImageOutlinedIcon />,           to: '/admin/media',        exact: false, adminOnly: true  },
   { label: 'Usuarios',      icon: <PeopleOutlinedIcon />,          to: '/admin/users',        exact: false, adminOnly: true  },

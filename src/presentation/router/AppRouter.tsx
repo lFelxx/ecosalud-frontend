@@ -10,14 +10,14 @@ import RegisterPage from '../pages/auth/RegisterPage';
 import DashboardPage from '../pages/dashboard/DashboardPage';
 import AppointmentsPage from '../pages/appointments/AppointmentsPage';
 import BookAppointmentPage from '../pages/appointments/BookAppointmentPage';
-import ServicesPage from '../pages/services/ServicesPage';
+import CatalogPage from '../pages/catalog/CatalogPage';
 import PublicationsPage from '../pages/publications/PublicationsPage';
 import PublicationDetailPage from '../pages/publications/PublicationDetailPage';
 
 // Admin
 import AdminLayout from '../pages/admin/AdminLayout';
 import AdminDashboardPage from '../pages/admin/AdminDashboardPage';
-import AdminServicesPage from '../pages/admin/services/AdminServicesPage';
+import AdminCatalogPage from '../pages/admin/catalog/AdminCatalogPage';
 import AdminPostsPage from '../pages/admin/posts/AdminPostsPage';
 import AdminPostEditorPage from '../pages/admin/posts/AdminPostEditorPage';
 import AdminMediaPage from '../pages/admin/media/AdminMediaPage';
@@ -52,14 +52,13 @@ export default function AppRouter() {
     <BrowserRouter>
       <ScrollToTop />
       <Routes>
-        {/* Inicio */}
         <Route path="/" element={<HomeRoute />} />
 
         {/* Páginas públicas */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/especialista" element={<SpecialistProfilePage />} />
-        <Route path="/services" element={<ServicesPage />} />
+        <Route path="/catalog" element={<CatalogPage />} />
         <Route path="/publications" element={<PublicationsPage />} />
         <Route path="/publications/:id" element={<PublicationDetailPage />} />
 
@@ -68,10 +67,10 @@ export default function AppRouter() {
         <Route path="/appointments" element={<PrivateRoute><AppointmentsPage /></PrivateRoute>} />
         <Route path="/appointments/book" element={<PrivateRoute><BookAppointmentPage /></PrivateRoute>} />
 
-        {/* Panel Admin / Editor — layout con Outlet */}
+        {/* Panel Admin / Editor */}
         <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
           <Route index element={<AdminDashboardPage />} />
-          <Route path="services" element={<AdminServicesPage />} />
+          <Route path="catalog" element={<AdminCatalogPage />} />
           <Route path="posts" element={<AdminPostsPage />} />
           <Route path="posts/new" element={<AdminPostEditorPage />} />
           <Route path="posts/edit/:id" element={<AdminPostEditorPage />} />

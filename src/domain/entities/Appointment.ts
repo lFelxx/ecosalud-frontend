@@ -1,10 +1,18 @@
+export interface AppointmentRequest {
+  userId: number;
+  therapistId: number;
+  catalogId: number;
+  date: string;
+}
+
 export interface Appointment {
   id: number;
-  patientId: number;
-  serviceId: number;
-  therapistId?: number;
+  userId: number;
+  therapistId: number;
+  catalogId: number;
   date: string;
-  time: string;
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
-  notes?: string;
+  status: 'PENDIENTE' | 'CONFIRMADA' | 'CANCELADA' | 'REPROGRAMADA';
+  userName?: string;
+  therapistName?: string;
+  catalogName?: string;
 }

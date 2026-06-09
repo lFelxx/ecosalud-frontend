@@ -1,17 +1,14 @@
 import type { IAppointmentRepository } from '../../../domain/repositories/IAppointmentRepository';
-import type { Appointment } from '../../../domain/entities/Appointment';
+import type { Appointment, AppointmentRequest } from '../../../domain/entities/Appointment';
 
 export class BookAppointmentUseCase {
-  private readonly appointmentRepository: IAppointmentRepository;
+  private readonly repo: IAppointmentRepository;
 
-  constructor(appointmentRepository: IAppointmentRepository) {
-    this.appointmentRepository = appointmentRepository;
+  constructor(repo: IAppointmentRepository) {
+    this.repo = repo;
   }
 
-  async execute(data: Omit<Appointment, 'id'>): Promise<Appointment> {
-    if (!data.date || !data.time || !data.serviceId) {
-      throw new Error('Fecha, hora y servicio son requeridos.');
-    }
-    return this.appointmentRepository.create(data);
+  async execute(data: AppointmentRequest): Promise<Appointment> {
+    return this.repo.book(data);
   }
 }
